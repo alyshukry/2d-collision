@@ -1,6 +1,8 @@
 body {
     margin: 0;
     overflow: hidden;
+    
+    background-color: black;
 }
 
 #container {
@@ -27,5 +29,4 @@ body {
     transform: translate(0, 0);
 
     color: white;
-
 }
