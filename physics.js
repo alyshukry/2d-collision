@@ -1,9 +1,9 @@
 const accelerationX = 0
-const accelerationY = 0.0981
+const accelerationY = 0.1
 const collisionDamping = 0.75
 const container = document.querySelector("#container")
 const wallNudgeDamping = 0.125
-const particleNudgeDamping = 0.5
+const particleNudgeDamping = 0.9
 
 
 class Particle {
@@ -50,7 +50,7 @@ class Particle {
             this.velocityX += (overlap / 2) * nx * particleNudgeDamping
             this.velocityY += (overlap / 2) * ny * particleNudgeDamping
             particle.velocityX -= (overlap / 2) * nx * particleNudgeDamping
-            particle.velocityY -= (overlap / 2) * ny* particleNudgeDamping
+            particle.velocityY -= (overlap / 2) * ny * particleNudgeDamping
     
             // Relative velocity
             const rvx = this.velocityX - particle.velocityX
@@ -128,48 +128,53 @@ class Particle {
         this.y += this.velocityY
 
         this.element.style.transform = `translate(${this.x - this.radius}px, ${this.y - this.radius}px)`
-
-        drawPixel(this.x, this.y, 0, 0, 0) // white pixel
-        drawPixel(this.x + this.radius, this.y, 255, 0, 0) // red pixel
-        drawPixel(this.x, this.y + this.radius, 255, 0, 0) // red pixel
-        drawPixel(this.x - this.radius, this.y, 255, 0, 0) // red pixel
-        drawPixel(this.x, this.y - this.radius, 255, 0, 0) // red pixel
     }
 }
 
-let particleId = -1
-const particles = Array.from(document.querySelectorAll(".block")).map((element) => {
-    particleId += 1
-    console.log(element.firstElementChild.r.baseVal.value)
-    return new Particle(element.firstElementChild.r.baseVal.value, element, particleId) // Create a new Particle for each .block element
+// Creating and defining the particles
+for (let amount = 0; amount <= 35; amount++) {
+    const svgNS = "http://www.w3.org/2000/svg"
+
+    const svg = document.createElementNS(svgNS, "svg")
+    svg.setAttribute("class", "particle")
+    svg.setAttribute("width", "48px")
+    svg.setAttribute("height", "48px")
+    svg.setAttribute("xmlns", svgNS)
+
+    const circle = document.createElementNS(svgNS, "circle")
+    circle.setAttribute("cx", "24")
+    circle.setAttribute("cy", "24")
+    circle.setAttribute("r", "24")
+    circle.setAttribute("fill", "currentColor")
+
+    svg.appendChild(circle)
+    document.body.appendChild(svg)
+}   const particleElements = document.querySelectorAll(".particle")
+
+// Separating the particles
+let initialPos = 0
+document.querySelectorAll(".particle").forEach((particleElement) => {
+    initialPos += particleElement.clientHeight + 5
+    particleElement.style.transform = `translate(${initialPos}px, 50px)`
 })
 
+// Creating the particles
+let particleId = -1
+const particles = Array.from(particleElements).map((element) => {
+    particleId += 1
+    return new Particle(element.clientHeight / 2, element, particleId) // Create a new Particle for each .particle element
+})
+
+// Giving each particle a random initial velocity
 particles.forEach((particle) => {
     particle.velocityX = Math.random() * 10
     particle.velocityY = Math.random() * 10
 })
 
+// Animate one frame
 function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
     particles.forEach((particle) => {
         particle.update()
-    })  // Update each particle position
-    requestAnimationFrame(animate)  // Continue the animation
-}
-
-const canvas = document.getElementById("canvas")
-const ctx = canvas.getContext("2d")
-
-function drawPixel(x, y, r, g, b, a = 255) {
-    const imageData = ctx.createImageData(1, 1)
-    const data = imageData.data
-
-    data[0] = r   // Red
-    data[1] = g   // Green
-    data[2] = b   // Blue
-    data[3] = a   // Alpha
-
-    ctx.putImageData(imageData, Math.floor(x), Math.floor(y))
-}
-
-animate()
+    }) // Update each particle position
+    requestAnimationFrame(animate)
+}   animate() // Start the animation

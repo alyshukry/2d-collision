@@ -1,0 +1,31 @@
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+#container {
+    position: absolute;
+
+    width: 100vw;
+    height: 100vh;
+
+    background-color: black;
+
+}   #text {
+    z-index: 1;
+    position: absolute;
+
+    color:  white;
+    font-size: 2rem;
+    font-family: monospace;
+
+    margin: 5rem;
+}
+
+.particle {
+    position: absolute;
+    transform: translate(0, 0);
+
+    color: white;
+
+}
