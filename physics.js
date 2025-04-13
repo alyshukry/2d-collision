@@ -5,6 +5,84 @@ const container = document.querySelector("#container")
 const wallNudgeDamping = 0.125
 const particleNudgeDamping = 0.9
 
+const gyroscope = {
+  
+    //sensor refresh rate 1/60
+    rotateDisplay: 0,
+    leftToRight: 0,
+    frontToBack:0,
+    movementTowardsToAway: 0,
+    movementLeftToRight: 0,
+    movementUpToDown: 0,
+    
+    //
+    // DeviceOrientationEvent
+    //
+      
+    requestDeviceOrientation: function() {
+        if (
+            typeof DeviceOrientationEvent !== "undefined" &&
+            typeof DeviceOrientationEvent.requestPermission === "function"
+        ) {
+            DeviceOrientationEvent.requestPermission()
+                .then((permissionState) => {
+                    if (permissionState === "granted") {
+                        //what to do with gyroscope: >IOS13
+                        gyroscope.getOrientationData();
+                    }
+                })
+                .catch(console.error);
+        } else {
+            //what to do with gyroscope: other devices
+            gyroscope.getOrientationData();
+        }
+    },
+    
+    
+    //
+    // DeviceMotionEvent
+    //
+    
+    requestDeviceMotion: function() {
+        if (
+            typeof DeviceMotionEvent !== "undefined" &&
+            typeof DeviceMotionEvent.requestPermission === "function"
+        ) {
+            DeviceMotionEvent.requestPermission()
+                .then((permissionState) => {
+                    if (permissionState === "granted") {
+                        //what to do with gyroscope: >IOS13
+                        gyroscope.getMotionData();
+                    }
+                })
+                .catch(console.error);
+        } else {
+            //what to do with gyroscope: other devices
+            gyroscope.getMotionData();
+        }
+    },
+    
+    
+    
+    // ---------------
+    
+    getOrientationData: function() {
+      window.addEventListener("deviceorientation", (event) => {
+          gyroscope.rotateDisplay = event.alpha;
+          gyroscope.frontToBack = event.beta;
+          gyroscope.leftToRight = event.gamma;
+          // updateGyroscope();
+      });
+    },
+    getMotionData: function() {
+      window.addEventListener("devicemotion", (event) => {
+        gyroscope.movementTowardsToAway = event.acceleration.z;
+        gyroscope.movementLeftToRight = event.acceleration.x;
+        gyroscope.movementUpToDown = event.acceleration.y;
+          // updateGyroscope();
+      });
+    }
+}
 
 class Particle {
     constructor(radius, element, id) {
@@ -40,7 +118,7 @@ class Particle {
         const dy = this.y - particle.y
         const distance = Math.sqrt(dx * dx + dy * dy)
     
-        const minDist = this.radius + particle.radius
+        const minDist = this.radius + particle.radius + 5
         if (distance < minDist) {
             const nx = dx / distance
             const ny = dy / distance
@@ -176,87 +254,8 @@ function animate() {
     particles.forEach((particle) => {
         particle.update()
     }) // Update each particle position
+    gyroscope.getOrientationData()
+    console.log(gyroscope.rotateDisplay)
+    document.querySelector("#text").innerHTML = `${gyroscope.rotateDisplay}`
     requestAnimationFrame(animate)
 }   animate() // Start the animation
-
-const gyroscope = {
-  
-    //sensor refresh rate 1/60
-    rotateDisplay: 0,
-    leftToRight: 0,
-    frontToBack:0,
-    movementTowardsToAway: 0,
-    movementLeftToRight: 0,
-    movementUpToDown: 0,
-    
-    //
-    // DeviceOrientationEvent
-    //
-      
-    requestDeviceOrientation: function() {
-        if (
-            typeof DeviceOrientationEvent !== "undefined" &&
-            typeof DeviceOrientationEvent.requestPermission === "function"
-        ) {
-            DeviceOrientationEvent.requestPermission()
-                .then((permissionState) => {
-                    if (permissionState === "granted") {
-                        //what to do with gyroscope: >IOS13
-                        gyroscope.getOrientationData();
-                    }
-                })
-                .catch(console.error);
-        } else {
-            //what to do with gyroscope: other devices
-            gyroscope.getOrientationData();
-        }
-    },
-    
-    
-    //
-    // DeviceMotionEvent
-    //
-    
-    requestDeviceMotion: function() {
-        if (
-            typeof DeviceMotionEvent !== "undefined" &&
-            typeof DeviceMotionEvent.requestPermission === "function"
-        ) {
-            DeviceMotionEvent.requestPermission()
-                .then((permissionState) => {
-                    if (permissionState === "granted") {
-                        //what to do with gyroscope: >IOS13
-                        gyroscope.getMotionData();
-                    }
-                })
-                .catch(console.error);
-        } else {
-            //what to do with gyroscope: other devices
-            gyroscope.getMotionData();
-        }
-    },
-    
-    
-    
-    // ---------------
-    
-    getOrientationData: function() {
-      window.addEventListener("deviceorientation", (event) => {
-          gyroscope.rotateDisplay = event.alpha;
-          gyroscope.frontToBack = event.beta;
-          gyroscope.leftToRight = event.gamma;
-          // updateGyroscope();
-      });
-    },
-    getMotionData: function() {
-      window.addEventListener("devicemotion", (event) => {
-        gyroscope.movementTowardsToAway = event.acceleration.z;
-        gyroscope.movementLeftToRight = event.acceleration.x;
-        gyroscope.movementUpToDown = event.acceleration.y;
-          // updateGyroscope();
-      });
-    }
-}
-gyroscope.getOrientationData()
-console.log(gyroscope.rotateDisplay)
-document.querySelector("#text").innerHTML = `${gyroscope.rotateDisplay}`
