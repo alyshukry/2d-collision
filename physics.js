@@ -1,5 +1,5 @@
 const accelerationX = 0
-const accelerationY = 0.1
+const accelerationY = 0.35
 const collisionDamping = 0.75
 const container = document.querySelector("#container")
 const wallNudgeDamping = 0.125
