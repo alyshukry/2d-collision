@@ -7,8 +7,8 @@ const particleNudgeDamping = 0.9
 
 import {gyroscope} from "./gyroscope.js" //change path to location
 
-gyroscope.requestDeviceOrientation()
-gyroscope.requestDeviceMotion()
+let click = document.querySelector("#text");
+click.onclick = function(){gyroscope.requestDeviceOrientation();gyroscope.requestDeviceMotion();console.log("Requesting permissions...")};
 
 class Particle {
     constructor(radius, element, id) {
