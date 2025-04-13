@@ -37,8 +37,8 @@ class Particle {
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.velocityX += gyroscope.leftToRight / 90 * 0.75
-            this.velocityY += gyroscope.frontToBack / 90 * 0.75
+            this.velocityX += gyroscope.leftToRight / 90
+            this.velocityY += gyroscope.frontToBack / 90
 
         } else {
             this.velocityX += accelerationX
