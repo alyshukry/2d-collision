@@ -22,16 +22,6 @@ body {
     font-family: monospace;
 
     margin: 5rem;
-
-}   #start-button {
-    z-index: 1;
-    position: absolute;
-
-    color:  white;
-    font-size: 2rem;
-    font-family: monospace;
-
-    margin: 8rem 5rem;
 }
 
 .particle {

@@ -1,5 +1,5 @@
-const accelerationX = 0
-const accelerationY = 0.35
+let accelerationX = 0
+let accelerationY = 0.35
 const collisionDamping = 0.75
 const container = document.querySelector("#container")
 const wallNudgeDamping = 0.125
@@ -8,6 +8,7 @@ const particleNudgeDamping = 0.9
 import {gyroscope} from "./gyroscope.js" //change path to location
 
 gyroscope.requestDeviceOrientation()
+gyroscope.requestDeviceMotion()
 
 class Particle {
     constructor(radius, element, id) {
@@ -180,8 +181,7 @@ function animate() {
         particle.update()
     }) // Update each particle position
 
-    console.log(gyroscope.rotateDisplay)
-    document.querySelector("#text").innerHTML = `${gyroscope.rotateDisplay}`
+    document.querySelector("#text").innerHTML = `Tilt: ${gyroscope.leftToRight}<br>Horizontal: ${gyroscope.movementLeftToRight}<br>Vertical: ${gyroscope.movementUpToDown}`
 
     requestAnimationFrame(animate)
 }   animate() // Start the animation
