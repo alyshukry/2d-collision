@@ -36,8 +36,16 @@ class Particle {
         if (Math.abs(this.velocityY) < 0.01) this.velocityY = 0
 
         // Adds acceleration to the velocity
-        this.velocityX += accelerationX
-        this.velocityY += accelerationY
+        if (gyroscope.frontToBack) {
+            this.velocityX += gyroscope.frontToBack / 90 * 0.35
+            this.velocityY += gyroscope.leftToRight / 90 * 0.35
+
+        } else {
+            this.velocityX += accelerationX
+            this.velocityY += accelerationY
+        }
+
+
 
     }   checkCollision(particle) {
         const dx = this.x - particle.x
