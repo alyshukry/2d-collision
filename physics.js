@@ -181,7 +181,11 @@ function animate() {
         particle.update()
     }) // Update each particle position
 
-    document.querySelector("#text").innerHTML = `Beta: ${gyroscope.upToDown.toFixed(2)}<br>Gamma: ${gyroscope.leftToRight.toFixed(2)}<br>Horizontal: ${gyroscope.movementLeftToRight.toFixed(2)}<br>Vertical: ${gyroscope.movementUpToDown.toFixed(2)}`
-
+    document.querySelector("#text").innerHTML = `
+        Beta: ${gyroscope.upToDown?.toFixed(2) ?? "N/A"}<br>
+        Gamma: ${gyroscope.leftToRight?.toFixed(2) ?? "N/A"}<br>
+        Horizontal: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"}<br>
+        Vertical: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}
+    `
     requestAnimationFrame(animate)
 }   animate() // Start the animation
