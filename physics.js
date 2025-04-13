@@ -52,7 +52,7 @@ class Particle {
         const dy = this.y - particle.y
         const distance = Math.sqrt(dx * dx + dy * dy)
     
-        const minDist = this.radius + particle.radius + 5
+        const minDist = this.radius + particle.radius
         if (distance < minDist) {
             const nx = dx / distance
             const ny = dy / distance
