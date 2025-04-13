@@ -179,12 +179,17 @@ function animate() {
     requestAnimationFrame(animate)
 }   animate() // Start the animation
 
-if (typeof DeviceMotionEvent.requestPermission === 'function') {
-    DeviceMotionEvent.requestPermission()
-        .then(response => {
-            if (response === 'granted') {
-                document.querySelector("#container").style.backgroundColor = "red"
-            }
-        })
-        .catch(console.error);
+if (window.DeviceMotionEvent) {
+    window.addEventListener("devicemotion", (event) => {
+        const accX = event.accelerationIncludingGravity.x
+        const accY = event.accelerationIncludingGravity.y
+
+        if (accX && accY) document.querySelector("#text").innerHTML = 
+            `Try resizing your window<br>Acceleration X: ${accX},<br>Acceleration Y: ${accY}`
+        
+        // Example: use acceleration to influence your simulation
+        // e.g., particle.velocityX += accX * 0.1;
+    })
+} else {
+    console.log("DeviceMotionEvent not supported")
 }
