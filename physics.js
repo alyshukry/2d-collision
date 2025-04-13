@@ -84,6 +84,9 @@ const gyroscope = {
     }
 }
 
+gyroscope.requestDeviceOrientation()
+gyroscope.requestDeviceMotion()
+
 class Particle {
     constructor(radius, element, id) {
         this.radius = radius
@@ -254,8 +257,9 @@ function animate() {
     particles.forEach((particle) => {
         particle.update()
     }) // Update each particle position
-    gyroscope.getOrientationData()
+    
     console.log(gyroscope.rotateDisplay)
     document.querySelector("#text").innerHTML = `${gyroscope.rotateDisplay}`
+
     requestAnimationFrame(animate)
 }   animate() // Start the animation
