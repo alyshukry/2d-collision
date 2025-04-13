@@ -258,4 +258,5 @@ const gyroscope = {
     }
 }
 gyroscope.getOrientationData()
+console.log(gyroscope.rotateDisplay)
 document.querySelector("#text").innerHTML = `${gyroscope.rotateDisplay}`
