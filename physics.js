@@ -178,3 +178,13 @@ function animate() {
     }) // Update each particle position
     requestAnimationFrame(animate)
 }   animate() // Start the animation
+
+if (typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission()
+        .then(response => {
+            if (response === 'granted') {
+                document.querySelector("#container").style.backgroundColor = "red"
+            }
+        })
+        .catch(console.error);
+}
