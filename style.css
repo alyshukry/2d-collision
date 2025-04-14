@@ -21,6 +21,8 @@ body {
     font-size: 1.25rem;
     font-family: monospace;
 
+    overflow-y: visible;
+
     margin: 5rem;
 }
 
