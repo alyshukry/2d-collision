@@ -1,5 +1,5 @@
 let accelerationX = 0
-let accelerationY = 0.1
+let accelerationY = 0.2
 const collisionDamping = 0.75
 const container = document.querySelector("#container")
 const wallNudgeDamping = 0.125
@@ -41,8 +41,8 @@ class Particle {
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.velocityX += gyroscope.leftToRight / 270 + gyroscope.movementLeftToRight / 7.5
-            this.velocityY += gyroscope.frontToBack / 270 + gyroscope.movementUpToDown / 7.5
+            this.velocityX += gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 5
+            this.velocityY += gyroscope.frontToBack / 180 + gyroscope.move / 5
 
         } else {
             this.velocityX += accelerationX
