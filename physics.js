@@ -1,9 +1,9 @@
 let accelerationX = 0
-let accelerationY = 0.35
+let accelerationY = 0.1
 const collisionDamping = 0.75
 const container = document.querySelector("#container")
 const wallNudgeDamping = 0.125
-const particleNudgeDamping = 0.125
+const particleNudgeDamping = 0.05
 
 import {gyroscope} from "./gyroscope.js" //change path to location
 
@@ -41,8 +41,8 @@ class Particle {
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.velocityX += gyroscope.leftToRight / 90 + gyroscope.movementLeftToRight / 2.5
-            this.velocityY += gyroscope.frontToBack / 90 + gyroscope.movementTowardsToAway / 2.5
+            this.velocityX += gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 5
+            this.velocityY += gyroscope.frontToBack / 180 + gyroscope.movementTowardsToAway / 5
 
         } else {
             this.velocityX += accelerationX
@@ -54,17 +54,24 @@ class Particle {
         const dy = this.y - particle.y
         const distance = Math.sqrt(dx * dx + dy * dy)
     
-        const minDist = this.radius + particle.radius
+        const minDist = this.radius + particle.radius + 5
         if (distance < minDist) {
             const nx = dx / distance
             const ny = dy / distance
             const overlap = minDist - distance
     
             // Nudge each particle away from the other when they're overlapping, more overlap = more explosion
-            this.velocityX += (overlap / 2) * nx * particleNudgeDamping
-            this.velocityY += (overlap / 2) * ny * particleNudgeDamping
-            particle.velocityX -= (overlap / 2) * nx * particleNudgeDamping
-            particle.velocityY -= (overlap / 2) * ny * particleNudgeDamping
+            const nudgeX = (overlap / 2) * nx * particleNudgeDamping
+            const nudgeY = (overlap / 2) * ny * particleNudgeDamping
+
+            this.x += nudgeX
+            this.y += nudgeY
+            particle.x -= nudgeX
+            particle.y -= nudgeY
+            this.velocityX += nudgeX
+            this.velocityY += nudgeY
+            particle.velocityX -= nudgeX
+            particle.velocityY -= nudgeY
     
             // Relative velocity
             const rvx = this.velocityX - particle.velocityX
