@@ -11,8 +11,11 @@ import {gyroscope} from "./gyroscope.js" //change path to location
 gyroscope.requestDeviceOrientation()
 gyroscope.requestDeviceMotion()
 
-let click = document.querySelector("#text");
-click.onclick = function(){gyroscope.requestDeviceOrientation();gyroscope.requestDeviceMotion();console.log("Requesting permissions...")};
+let click = document.querySelector("body");
+click.onclick = function(){
+    gyroscope.requestDeviceOrientation()
+    gyroscope.requestDeviceMotion()
+    console.log("Requesting permissions...")};
 
 class Particle {
     constructor(radius, element, id) {
@@ -202,7 +205,8 @@ function animate() {
         Beta: ${gyroscope.frontToBack?.toFixed(2) ?? "N/A"}<br>
         Gamma: ${gyroscope.leftToRight?.toFixed(2) ?? "N/A"}<br>
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"}<br>
-        Y: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}
+        Y: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}<br>
+        Tap to activate
     `
     requestAnimationFrame(animate)
 }   animate() // Start the animation
