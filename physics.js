@@ -3,7 +3,7 @@ let accelerationY = 0.35
 const collisionDamping = 0.75
 const container = document.querySelector("#container")
 const wallNudgeDamping = 0.125
-const particleNudgeDamping = 0.9
+const particleNudgeDamping = 0.125
 
 import {gyroscope} from "./gyroscope.js" //change path to location
 
@@ -41,15 +41,13 @@ class Particle {
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.velocityX += gyroscope.leftToRight / 90
-            this.velocityY += gyroscope.frontToBack / 90
+            this.velocityX += gyroscope.leftToRight / 90 + gyroscope.movementLeftToRight / 2.5
+            this.velocityY += gyroscope.frontToBack / 90 + gyroscope.movementTowardsToAway / 2.5
 
         } else {
             this.velocityX += accelerationX
             this.velocityY += accelerationY
         }
-
-
 
     }   checkCollision(particle) {
         const dx = this.x - particle.x
@@ -193,7 +191,7 @@ function animate() {
         particle.update()
     }) // Update each particle position
 
-    document.querySelector("#text").innerHTML = `
+    if (gyroscope.frontToBack) document.querySelector("#text").innerHTML = `
         Beta: ${gyroscope.frontToBack?.toFixed(2) ?? "N/A"}<br>
         Gamma: ${gyroscope.leftToRight?.toFixed(2) ?? "N/A"}<br>
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"}<br>
