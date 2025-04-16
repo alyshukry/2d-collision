@@ -4,10 +4,8 @@ import {Vector} from "./vectors.js"
 
 let acceleration = new Vector(0, 0.2) 
 
-const collisionDamping = 0.01
+const collisionDamping = 0.8
 const container = document.querySelector("#container")
-const wallNudgeDamping = 0.125
-const particleNudgeDamping = 0.05
 
 gyroscope.requestDeviceOrientation()
 gyroscope.requestDeviceMotion()
@@ -38,7 +36,7 @@ class Particle {
         }
 
     }   updateVelocities() {
-        if (this.vel.magnitude() < 0.01) this.vel.multiply(0)
+        if (this.vel.magnitude() < 0.01) this.vel = this.vel.multiply(0)
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
@@ -82,6 +80,7 @@ class Particle {
             const velocityChange = deltaX.multiply(scalar)
         
             this.vel = this.vel.add(velocityChange)
+            other.vel = other.vel.subtract(velocityChange)
 
             this.element.style.color = "red"
             return true
@@ -104,38 +103,26 @@ class Particle {
         let containerHeight = container.offsetHeight
         
         if (this.pos.x <= this.r) { // Detect collision between wall
-            const overlap = this.r - this.pos.x
-            if (this.vel.x < 0) { // Switch direction only if velocity direction is to the wall
-                this.vel.x = -this.vel.x * collisionDamping
-            }
-            this.vel.x += overlap * wallNudgeDamping // Make the overlap add velocity, to simulate the walls pushing on the particles if resized mid-simulation
-        }
-        if (this.pos.y <= this.r) {
-            const overlap = this.r - this.pos.y
-            if (this.vel.y < 0) {
-                this.vel.y = -this.vel.y * collisionDamping
-            }
-            this.vel.y += overlap * wallNudgeDamping
-        }
-        if (this.pos.x >= containerWidth - this.r) {
-            const overlap = this.pos.x - (containerWidth - this.r)
-            if (this.vel.x > 0) {
-                this.vel.x = -this.vel.x * collisionDamping
-            }
-            this.vel.x -= overlap * wallNudgeDamping
-        }
-        if (this.pos.y >= containerHeight - this.r) {
-            const overlap = this.pos.y - (containerHeight - this.r)
-            if (this.vel.y > 0) {
-                this.vel.y = -this.vel.y * collisionDamping
-            }
-            this.vel.y -= overlap * wallNudgeDamping
+            this.pos.x = this.r
+            this.vel.x = this.vel.multiply(-1).x
+
+        }   else if (this.pos.x >= containerWidth) { // Detect collision between wall
+            this.pos.x = containerWidth - this.r
+            this.vel.x = this.vel.multiply(-1).x
+
+        }   else if (this.pos.y <= this.r) { // Detect collision between wall
+            this.pos.y = this.r
+            this.vel.y = this.vel.multiply(-1).y
+
+        }   else if (this.pos.y >= containerHeight) { // Detect collision between wall
+            this.pos.y = containerHeight - this.r
+            this.vel.y = this.vel.multiply(-1).y
         }
 
         this.updateVelocities()
         this.vel = this.vel.multiply(0.99)
         this.pos = this.pos.add(this.vel)
-    
+
         // console.log(`PARTICLE ${this.id} \n   velocity: ${this.vel.x.toFixed(1)} ${this.vel.y.toFixed(1)} \n   position: ${this.pos.x.toFixed(1)} ${this.pos.y.toFixed(1)} \n`)
 
         this.element.style.transform = `translate(${this.pos.x - this.r}px, ${this.pos.y - this.r}px)`
@@ -143,7 +130,7 @@ class Particle {
 }
 
 // Creating and defining the particles
-for (let amount = 0; amount < 50; amount++) {
+for (let amount = 0; amount < 2; amount++) {
     const svgNS = "http://www.w3.org/2000/svg"
 
     const svg = document.createElementNS(svgNS, "svg")
@@ -194,6 +181,17 @@ function animate() {
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"},<br>
         Y: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}<br>
     `
+    console.log()
+
+    logTotalVelocity()
     requestAnimationFrame(animate)
 
 }   animate() // Start the animation
+
+function logTotalVelocity() {
+    let totalVelocity = 0
+    particles.forEach((particle) => {
+        totalVelocity += parseFloat(particle.vel.magnitude());  // Get the magnitude of the velocity vector
+    });
+    console.log(`Particle total velocity: ${totalVelocity.toFixed(2)}`);
+}
