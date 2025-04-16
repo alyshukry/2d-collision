@@ -1,12 +1,13 @@
-let accelerationX = 0
-let accelerationY = 0.2
-const collisionDamping = 0.75
+
+import {gyroscope} from "./gyroscope.js"
+import {Vector} from "./vectors.js"
+
+let acceleration = new Vector(0, 0.2) 
+
+const collisionDamping = 0.01
 const container = document.querySelector("#container")
 const wallNudgeDamping = 0.125
 const particleNudgeDamping = 0.05
-
-import {gyroscope} from "./gyroscope.js" //change path to location
-
 
 gyroscope.requestDeviceOrientation()
 gyroscope.requestDeviceMotion()
@@ -18,17 +19,15 @@ click.onclick = function(){
     console.log("Requesting permissions...")};
 
 class Particle {
-    constructor(radius, element, id) {
-        this.radius = radius
+    constructor(r, element, id) {
+        this.r = r
         this.element = element
         this.id = id
 
         const {x, y} = this.getCoordinates(element)
-        this.x = x
-        this.y = y
+        this.pos = new Vector(x, y)
 
-        this.velocityX = 0
-        this.velocityY = 0
+        this.vel =  new Vector(0, 0)
 
     }   getCoordinates(element) {
         let coordinates = getComputedStyle(element).transform.match(/matrix\(([^)]+)\)/)[1].split(', ')
@@ -39,70 +38,56 @@ class Particle {
         }
 
     }   updateVelocities() {
-        if (Math.abs(this.velocityX) < 0.01) this.velocityX = 0
-        if (Math.abs(this.velocityY) < 0.01) this.velocityY = 0
+        if (this.vel.magnitude() < 0.01) this.vel.multiply(0)
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.velocityX += gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 2.5
-            this.velocityY += gyroscope.frontToBack / 180 + gyroscope.movementUpToDown / 2.5
+            this.vel = this.vel.add(gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 2.5)
 
         } else {
-            this.velocityX += accelerationX
-            this.velocityY += accelerationY
-        }
+            this.vel = this.vel.add(acceleration)
+        }   
 
-    }   checkCollision(particle) {
-        const dx = this.x - particle.x
-        const dy = this.y - particle.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
-    
-        const minDist = this.radius + particle.radius + 5
+    }   checkCollision(other) {
+        const delta = this.pos.subtract(other.pos)
+        const distance = delta.magnitude()
+        const minDist = this.r + other.r
+        
         if (distance < minDist) {
-            const nx = dx / distance
-            const ny = dy / distance
             const overlap = minDist - distance
-    
-            // Nudge each particle away from the other when they're overlapping, more overlap = more explosion
-            const nudgeX = (overlap / 2) * nx * particleNudgeDamping
-            const nudgeY = (overlap / 2) * ny * particleNudgeDamping
+            const correction = delta.normalize().multiply(overlap / 2)
+        
+            // Push both particles away from each other
+            this.pos.addToBoth(correction)
+            other.pos.subtractFromBoth(correction)
 
-            this.x += nudgeX
-            this.y += nudgeY
-            particle.x -= nudgeX
-            particle.y -= nudgeY
-            this.velocityX += nudgeX
-            this.velocityY += nudgeY
-            particle.velocityX -= nudgeX
-            particle.velocityY -= nudgeY
-    
-            // Relative velocity
-            const rvx = this.velocityX - particle.velocityX
-            const rvy = this.velocityY - particle.velocityY
-    
-            // Relative velocity in normal direction
-            const velAlongNormal = rvx * nx + rvy * ny
-    
-            if (velAlongNormal > 0) return false // already separating
-    
-            // Impulse scalar for equal mass and perfectly elastic
-            const impulse = -velAlongNormal
-    
-            // Apply impulse to both particles
-            this.velocityX += impulse * nx
-            this.velocityY += impulse * ny
-            particle.velocityX -= impulse * nx
-            particle.velocityY -= impulse * ny
-    
-            // Apply damping
-            this.velocityX *= collisionDamping
-            this.velocityY *= collisionDamping
-            particle.velocityX *= collisionDamping
-            particle.velocityY *= collisionDamping
-    
+            const m1 = 1
+            const m2 = 1
+        
+            const v1 = this.vel
+            const v2 = other.vel
+        
+            const x1 = this.pos
+            const x2 = other.pos
+        
+            const deltaV = v2.subtract(v1)
+            const deltaX = x2.subtract(x1)
+        
+            const dotProduct = deltaV.dot(deltaX)
+            const distanceSquared = deltaX.dot(deltaX)
+        
+            if (distanceSquared === 0) return v1 // Avoid divide by zero
+        
+            const scalar = (2 * m2 / (m1 + m2)) * (dotProduct / distanceSquared)
+            const velocityChange = deltaX.multiply(scalar)
+        
+            this.vel = this.vel.add(velocityChange)
+
+            this.element.style.color = "red"
             return true
         }
-    
+
+        this.element.style.color = "white"
         return false
     }
 
@@ -117,46 +102,48 @@ class Particle {
         // Collisions with walls
         let containerWidth = container.offsetWidth
         let containerHeight = container.offsetHeight
-        if (this.x <= this.radius) { // Detect collision between wall
-            const overlap = this.radius - this.x
-            if (this.velocityX < 0) { // Switch direction only if velocity direction is to the wall
-                this.velocityX = -this.velocityX * collisionDamping
-            }
-            this.velocityX += overlap * wallNudgeDamping // Make the overlap add velocity, to simulate the walls pushing on the particles if resized mid-simulation
-        }
-        if (this.y <= this.radius) {
-            const overlap = this.radius - this.y
-            if (this.velocityY < 0) {
-                this.velocityY = -this.velocityY * collisionDamping
-            }
-            this.velocityY += overlap * wallNudgeDamping
-        }
-        if (this.x >= containerWidth - this.radius) {
-            const overlap = this.x - (containerWidth - this.radius)
-            if (this.velocityX > 0) {
-                this.velocityX = -this.velocityX * collisionDamping
-            }
-            this.velocityX -= overlap * wallNudgeDamping
-        }
-        if (this.y >= containerHeight - this.radius) {
-            const overlap = this.y - (containerHeight - this.radius)
-            if (this.velocityY > 0) {
-                this.velocityY = -this.velocityY * collisionDamping
-            }
-            this.velocityY -= overlap * wallNudgeDamping
-        }
         
+        if (this.pos.x <= this.r) { // Detect collision between wall
+            const overlap = this.r - this.pos.x
+            if (this.vel.x < 0) { // Switch direction only if velocity direction is to the wall
+                this.vel.x = -this.vel.x * collisionDamping
+            }
+            this.vel.x += overlap * wallNudgeDamping // Make the overlap add velocity, to simulate the walls pushing on the particles if resized mid-simulation
+        }
+        if (this.pos.y <= this.r) {
+            const overlap = this.r - this.pos.y
+            if (this.vel.y < 0) {
+                this.vel.y = -this.vel.y * collisionDamping
+            }
+            this.vel.y += overlap * wallNudgeDamping
+        }
+        if (this.pos.x >= containerWidth - this.r) {
+            const overlap = this.pos.x - (containerWidth - this.r)
+            if (this.vel.x > 0) {
+                this.vel.x = -this.vel.x * collisionDamping
+            }
+            this.vel.x -= overlap * wallNudgeDamping
+        }
+        if (this.pos.y >= containerHeight - this.r) {
+            const overlap = this.pos.y - (containerHeight - this.r)
+            if (this.vel.y > 0) {
+                this.vel.y = -this.vel.y * collisionDamping
+            }
+            this.vel.y -= overlap * wallNudgeDamping
+        }
 
         this.updateVelocities()
-        this.x += this.velocityX
-        this.y += this.velocityY
+        this.vel = this.vel.multiply(0.99)
+        this.pos = this.pos.add(this.vel)
+    
+        // console.log(`PARTICLE ${this.id} \n   velocity: ${this.vel.x.toFixed(1)} ${this.vel.y.toFixed(1)} \n   position: ${this.pos.x.toFixed(1)} ${this.pos.y.toFixed(1)} \n`)
 
-        this.element.style.transform = `translate(${this.x - this.radius}px, ${this.y - this.radius}px)`
+        this.element.style.transform = `translate(${this.pos.x - this.r}px, ${this.pos.y - this.r}px)`
     }
 }
 
 // Creating and defining the particles
-for (let amount = 0; amount <= 35; amount++) {
+for (let amount = 0; amount < 50; amount++) {
     const svgNS = "http://www.w3.org/2000/svg"
 
     const svg = document.createElementNS(svgNS, "svg")
@@ -191,8 +178,8 @@ const particles = Array.from(particleElements).map((element) => {
 
 // Giving each particle a random initial velocity
 particles.forEach((particle) => {
-    particle.velocityX = Math.random() * 10
-    particle.velocityY = Math.random() * 10
+    particle.vel.x = Math.random() * 10
+    particle.vel.y = Math.random() * 10
 })
 
 // Animate one frame
@@ -208,4 +195,5 @@ function animate() {
         Y: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}<br>
     `
     requestAnimationFrame(animate)
+
 }   animate() // Start the animation
