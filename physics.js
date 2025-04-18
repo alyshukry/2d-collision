@@ -40,7 +40,8 @@ class Particle {
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.vel = this.vel.addToBoth(Math.sin(gyroscope.leftToRight) / 5 + Math.sin(gyroscope.frontToBack) / 5, Math.sin(gyroscope.leftToRight) / 5 + Math.sin(gyroscope.frontToBack) / 5)
+            this.vel.x += gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 2.5
+            this.vel.y += gyroscope.frontToBack / 180 + gyroscope.movementUpToDown / 2.5
 
         } else {
             this.vel = this.vel.add(acceleration)
@@ -173,8 +174,8 @@ function animate() {
     }) // Update each particle position
 
     if (gyroscope.frontToBack) document.querySelector("#text").innerHTML = `
-        Beta: ${Math.sin(gyroscope.frontToBack?.toFixed(2)) ?? "N/A"},<br>
-        Gamma: ${Math.sin(gyroscope.leftToRight?.toFixed(2)) / 5 ?? "N/A"},<br>
+        Beta: ${gyroscope.frontToBack?.toFixed(2) ?? "N/A"},<br>
+        Gamma: ${gyroscope.leftToRight?.toFixed(2) / 5 ?? "N/A"},<br>
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"},<br>
         Y: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}<br>
     `
