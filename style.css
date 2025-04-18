@@ -25,6 +25,7 @@ body {
 }
 
 .particle {
+    
     position: absolute;
     transform: translate(0, 0);
 

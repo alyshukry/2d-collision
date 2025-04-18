@@ -36,7 +36,7 @@ class Particle {
         }
 
     }   updateVelocities() {
-        if (this.vel.magnitude() < 0.01) this.vel = this.vel.multiply(0)
+        if (this.vel.abs().magnitude() < 0.01) this.vel = this.vel.multiply(0)
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
@@ -59,30 +59,32 @@ class Particle {
             this.pos.addToBoth(correction)
             other.pos.subtractFromBoth(correction)
 
-            const m1 = 1
-            const m2 = 1
-        
-            const v1 = this.vel
-            const v2 = other.vel
-        
-            const x1 = this.pos
-            const x2 = other.pos
-        
-            const deltaV = v2.subtract(v1)
-            const deltaX = x2.subtract(x1)
-        
-            const dotProduct = deltaV.dot(deltaX)
-            const distanceSquared = deltaX.dot(deltaX)
-        
-            if (distanceSquared === 0) return v1 // Avoid divide by zero
-        
-            const scalar = (2 * m2 / (m1 + m2)) * (dotProduct / distanceSquared)
-            const velocityChange = deltaX.multiply(scalar)
-        
-            this.vel = this.vel.add(velocityChange)
+            if (this.vel.abs().magnitude() + other.vel.abs().magnitude() > 0.02) {
+                const m1 = 1
+                const m2 = 1
+            
+                const v1 = this.vel
+                const v2 = other.vel
+            
+                const x1 = this.pos
+                const x2 = other.pos
+            
+                const deltaV = v2.subtract(v1)
+                const deltaX = x2.subtract(x1)
+            
+                const dotProduct = deltaV.dot(deltaX)
+                const distanceSquared = deltaX.dot(deltaX)
+            
+                if (distanceSquared === 0) return v1 // Avoid divide by zero
+            
+                const scalar = (2 * m2 / (m1 + m2)) * (dotProduct / distanceSquared)
+                const velocityChange = deltaX.multiply(scalar)
+            
+                this.vel = this.vel.add(velocityChange)
             other.vel = other.vel.subtract(velocityChange)
+            }
 
-            this.element.style.color = "red"
+            // this.element.style.color = "red"
             return true
         }
 
@@ -102,25 +104,24 @@ class Particle {
         let containerWidth = container.offsetWidth
         let containerHeight = container.offsetHeight
         
-        if (this.pos.x <= this.r) { // Detect collision between wall
+        if (this.pos.x <=this.r) { // Detect collision between wall
             this.pos.x = this.r
-            this.vel.x = this.vel.multiply(-1).x
+            if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(collisionDamping).x
 
-        }   else if (this.pos.x >= containerWidth) { // Detect collision between wall
+        }   if (this.pos.x > containerWidth - this.r) {
             this.pos.x = containerWidth - this.r
-            this.vel.x = this.vel.multiply(-1).x
+            if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(collisionDamping).x
 
-        }   else if (this.pos.y <= this.r) { // Detect collision between wall
+        }   if (this.pos.y < this.r) {
             this.pos.y = this.r
-            this.vel.y = this.vel.multiply(-1).y
+            if (this.vel.abs().magnitude() > 0.01) this.vel.y = this.vel.multiply(-1).multiply(collisionDamping).y
 
-        }   else if (this.pos.y >= containerHeight) { // Detect collision between wall
+        }   if (this.pos.y > containerHeight - this.r) {
             this.pos.y = containerHeight - this.r
-            this.vel.y = this.vel.multiply(-1).y
+            if (this.vel.abs().magnitude() > 0.01) this.vel.y = this.vel.multiply(-1).multiply(collisionDamping).y
         }
 
         this.updateVelocities()
-        this.vel = this.vel.multiply(0.99)
         this.pos = this.pos.add(this.vel)
 
         // console.log(`PARTICLE ${this.id} \n   velocity: ${this.vel.x.toFixed(1)} ${this.vel.y.toFixed(1)} \n   position: ${this.pos.x.toFixed(1)} ${this.pos.y.toFixed(1)} \n`)
@@ -130,7 +131,7 @@ class Particle {
 }
 
 // Creating and defining the particles
-for (let amount = 0; amount < 2; amount++) {
+for (let amount = 0; amount < 20; amount++) {
     const svgNS = "http://www.w3.org/2000/svg"
 
     const svg = document.createElementNS(svgNS, "svg")
@@ -146,7 +147,7 @@ for (let amount = 0; amount < 2; amount++) {
     circle.setAttribute("fill", "currentColor")
 
     svg.appendChild(circle)
-    document.body.appendChild(svg)
+    container.appendChild(svg)
 }   const particleElements = document.querySelectorAll(".particle")
 
 // Separating the particles
