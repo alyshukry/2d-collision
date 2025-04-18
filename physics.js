@@ -4,30 +4,31 @@ import {Vector} from "./vectors.js"
 
 let acceleration = new Vector(0, 0.35) 
 
-const collisionDamping = 0.8
+const collisionDamping = 0.5
 const container = document.querySelector("#container")
 
-gyroscope.requestDeviceOrientation()
-gyroscope.requestDeviceMotion()
-
-let click = document.querySelector("body");
+let click = document.querySelector("body")
 click.onclick = function(){
     gyroscope.requestDeviceOrientation()
     gyroscope.requestDeviceMotion()
-    console.log("Requesting permissions...")};
+    console.log("Requesting permissions...")
+}
 
 class Particle {
-    constructor(r, element, id) {
+    constructor(r, mass, element, id) {
+        // Particle attributes
         this.r = r
+        this.mass = mass
         this.element = element
         this.id = id
+        this.element.id = `particle-${id}`
+        this.vel =  new Vector(Math.random() * 15, Math.random() * 15) // Random initial velocity
 
         const {x, y} = this.getCoordinates(element)
         this.pos = new Vector(x, y)
 
-        this.vel =  new Vector(0, 0)
 
-    }   getCoordinates(element) {
+    }   getCoordinates(element) { // Gets the particle's coordinates from the element's transform
         let coordinates = getComputedStyle(element).transform.match(/matrix\(([^)]+)\)/)[1].split(', ')
         return {
             // Gets the x and y coordinates of the element using regex
@@ -36,10 +37,10 @@ class Particle {
         }
 
     }   updateVelocities() {
-        if (this.vel.abs().magnitude() < 0.01) this.vel = this.vel.multiply(0)
+        if (this.vel.abs().magnitude() < 0.01) this.vel = this.vel.multiply(0) // Stop particle completely if velocity is low enough
 
         // Adds acceleration to the velocity
-        if (gyroscope.frontToBack) {
+        if (gyroscope.frontToBack) { // Check if gyro is enabled
             this.vel.x += gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 2.5
             this.vel.y += gyroscope.frontToBack / 180 + gyroscope.movementUpToDown / 2.5
 
@@ -47,12 +48,12 @@ class Particle {
             this.vel = this.vel.add(acceleration)
         }   
 
-    }   checkCollision(other) {
+    }   checkCollision(other) { // Runs for each particle pair (unless a collision is detected, then it stops looking for other pairs)
         const delta = this.pos.subtract(other.pos)
         const distance = delta.magnitude()
         const minDist = this.r + other.r
         
-        if (distance < minDist) {
+        if (distance < minDist) { // Particles have collided
             const overlap = minDist - distance
             const correction = delta.normalize().multiply(overlap / 2)
         
@@ -60,38 +61,37 @@ class Particle {
             this.pos = this.pos.add(correction)
             other.pos = other.pos.subtract(correction)
 
-            if (this.vel.abs().magnitude() + other.vel.abs().magnitude() > 0.02) {
-                const m1 = 1
-                const m2 = 1
-            
+            if (this.vel.abs().magnitude() + other.vel.abs().magnitude() > 0.02) { // If particle has high enough velocity to reduce chaos
+                // Physics equation for collision resolution
+                const m1 = this.mass
+                const m2 = other.mass
                 const v1 = this.vel
                 const v2 = other.vel
+                const pos1 = this.pos
+                const pos2 = other.pos
             
-                const x1 = this.pos
-                const x2 = other.pos
+                const deltaVel = v2.subtract(v1)
+                const deltaPos = pos2.subtract(pos1)
             
-                const deltaV = v2.subtract(v1)
-                const deltaX = x2.subtract(x1)
+                const dotProduct = deltaVel.dot(deltaPos)
+                const distanceSquared = deltaPos.dot(deltaPos)
             
-                const dotProduct = deltaV.dot(deltaX)
-                const distanceSquared = deltaX.dot(deltaX)
-            
-                if (distanceSquared === 0) return v1 // Avoid divide by zero
+                if (distanceSquared === 0) return v1 // Avoid division by zero
             
                 const scalar = (2 * m2 / (m1 + m2)) * (dotProduct / distanceSquared)
-                const velocityChange = deltaX.multiply(scalar)
+                const velocityChange = deltaPos.multiply(scalar)
             
+                // Change the particles' velocities
                 this.vel = this.vel.add(velocityChange)
-            other.vel = other.vel.subtract(velocityChange)
-            }
+                other.vel = other.vel.subtract(velocityChange)
 
-            return true
-        }
+            }   return true // There was a collision (For loop should be broken)
 
-        return false
+        }   return false
     }
 
     update() {
+        // Checking each particle with the other and breaking when collision is detected
         for (let i = 0; i < particles.length; i++) {
             const particle = particles[i]
 
@@ -103,9 +103,9 @@ class Particle {
         let containerWidth = container.offsetWidth
         let containerHeight = container.offsetHeight
         
-        if (this.pos.x <=this.r) { // Detect collision between wall
-            this.pos.x = this.r
-            if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(collisionDamping).x
+        if (this.pos.x < this.r) { // Detect collision between wall
+            this.pos.x = this.r // Move the particle so it isn't touching the wall
+            if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(collisionDamping).x // Reverse particle direction
 
         }   if (this.pos.x > containerWidth - this.r) {
             this.pos.x = containerWidth - this.r
@@ -123,7 +123,7 @@ class Particle {
         this.updateVelocities()
         this.pos = this.pos.add(this.vel)
 
-        this.element.style.transform = `translate(${this.pos.x - this.r}px, ${this.pos.y - this.r}px)`
+        this.element.style.transform = `translate(${this.pos.x - this.r}px, ${this.pos.y - this.r}px)` // Radius offset to display particles correctly
     }
 }
 
@@ -158,13 +158,7 @@ document.querySelectorAll(".particle").forEach((particleElement) => {
 let particleId = -1
 const particles = Array.from(particleElements).map((element) => {
     particleId += 1
-    return new Particle(element.clientHeight / 2, element, particleId) // Create a new Particle for each .particle element
-})
-
-// Giving each particle a random initial velocity
-particles.forEach((particle) => {
-    particle.vel.x = Math.random() * 10
-    particle.vel.y = Math.random() * 10
+    return new Particle(element.clientHeight / 2, 1, element, particleId) // Create a new Particle for each .particle element
 })
 
 // Animate one frame
@@ -175,7 +169,7 @@ function animate() {
 
     if (gyroscope.frontToBack) document.querySelector("#text").innerHTML = `
         Beta: ${gyroscope.frontToBack?.toFixed(2) ?? "N/A"},<br>
-        Gamma: ${gyroscope.leftToRight?.toFixed(2) / 5 ?? "N/A"},<br>
+        Gamma: ${gyroscope.leftToRight?.toFixed(2) ?? "N/A"},<br>
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"},<br>
         Y: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}<br>
     `
