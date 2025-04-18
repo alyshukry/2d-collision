@@ -40,7 +40,7 @@ class Particle {
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.vel.x += gyroscope.rotateDisplay - 180
+            this.vel.x += (gyroscope.rotateDisplay - 180) / 360
 
         } else {
             this.vel = this.vel.addToBoth(acceleration)
@@ -173,7 +173,7 @@ function animate() {
     }) // Update each particle position
 
     if (gyroscope.frontToBack) document.querySelector("#text").innerHTML = `
-        Alpha: ${gyroscope.rotateDisplay?.toFixed(2) - 180 ?? "N/A"},<br>
+        Alpha: ${(gyroscope.rotateDisplay?.toFixed(2) - 180) / 360 ?? "N/A"},<br>
         Beta: ${gyroscope.frontToBack?.toFixed(2) ?? "N/A"},<br>
         Gamma: ${gyroscope.leftToRight?.toFixed(2) ?? "N/A"},<br>
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"},<br>
