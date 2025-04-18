@@ -173,7 +173,7 @@ function animate() {
     }) // Update each particle position
 
     if (gyroscope.frontToBack) document.querySelector("#text").innerHTML = `
-        Alpha: ${(gyroscope.rotateDisplay?.toFixed(2) - 360) / 360 ?? "N/A"},<br>
+        Alpha: ${Math.sin(gyroscope.rotateDisplay?.toFixed(2) - 180) / 5 ?? "N/A"},<br>
         Beta: ${gyroscope.frontToBack?.toFixed(2) ?? "N/A"},<br>
         Gamma: ${gyroscope.leftToRight?.toFixed(2) ?? "N/A"},<br>
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"},<br>
