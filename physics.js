@@ -2,7 +2,7 @@
 import {gyroscope} from "./gyroscope.js"
 import {Vector} from "./vectors.js"
 
-let acceleration = new Vector(0, 0.2) 
+let acceleration = new Vector(0, 0.35) 
 
 const collisionDamping = 0.8
 const container = document.querySelector("#container")
@@ -84,11 +84,9 @@ class Particle {
             other.vel = other.vel.subtract(velocityChange)
             }
 
-            // this.element.style.color = "red"
             return true
         }
 
-        this.element.style.color = "white"
         return false
     }
 
@@ -123,8 +121,6 @@ class Particle {
 
         this.updateVelocities()
         this.pos = this.pos.add(this.vel)
-
-        // console.log(`PARTICLE ${this.id} \n   velocity: ${this.vel.x.toFixed(1)} ${this.vel.y.toFixed(1)} \n   position: ${this.pos.x.toFixed(1)} ${this.pos.y.toFixed(1)} \n`)
 
         this.element.style.transform = `translate(${this.pos.x - this.r}px, ${this.pos.y - this.r}px)`
     }
@@ -182,17 +178,6 @@ function animate() {
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"},<br>
         Y: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}<br>
     `
-    console.log()
-
-    logTotalVelocity()
     requestAnimationFrame(animate)
 
 }   animate() // Start the animation
-
-function logTotalVelocity() {
-    let totalVelocity = 0
-    particles.forEach((particle) => {
-        totalVelocity += parseFloat(particle.vel.magnitude());  // Get the magnitude of the velocity vector
-    });
-    console.log(`Particle total velocity: ${totalVelocity.toFixed(2)}`);
-}
