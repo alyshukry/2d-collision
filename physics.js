@@ -40,10 +40,10 @@ class Particle {
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.vel = this.vel.add(gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 2.5)
+            this.vel = this.vel.addToBoth(gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 2.5)
 
         } else {
-            this.vel = this.vel.add(acceleration)
+            this.vel = this.vel.addToBoth(acceleration)
         }   
 
     }   checkCollision(other) {
