@@ -31,7 +31,7 @@ export class Vector {
 
         }   else {
             this.x += x
-            this.y += x
+            this.y += y
         }
         return this
 
@@ -42,7 +42,7 @@ export class Vector {
 
         }   else {
             this.x -= x
-            this.y -= x
+            this.y -= y
         }
         return this
 

@@ -40,7 +40,7 @@ class Particle {
 
         // Adds acceleration to the velocity
         if (gyroscope.frontToBack) {
-            this.vel = this.vel.addToBoth(gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 2.5)
+            this.vel = this.vel.addToBoth(gyroscope.leftToRight / 90 + gyroscope.movementLeftToRight / 2.5)
 
         } else {
             this.vel = this.vel.addToBoth(acceleration)
@@ -56,8 +56,8 @@ class Particle {
             const correction = delta.normalize().multiply(overlap / 2)
         
             // Push both particles away from each other
-            this.pos.addToBoth(correction)
-            other.pos.subtractFromBoth(correction)
+            this.pos = this.pos.add(correction)
+            other.pos = other.pos.subtract(correction)
 
             if (this.vel.abs().magnitude() + other.vel.abs().magnitude() > 0.02) {
                 const m1 = 1
@@ -173,6 +173,7 @@ function animate() {
     }) // Update each particle position
 
     if (gyroscope.frontToBack) document.querySelector("#text").innerHTML = `
+        Alpha: ${gyroscope.rotateDisplay?.toFixed(2) ?? "N/A"},<br>
         Beta: ${gyroscope.frontToBack?.toFixed(2) ?? "N/A"},<br>
         Gamma: ${gyroscope.leftToRight?.toFixed(2) ?? "N/A"},<br>
         X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"},<br>
