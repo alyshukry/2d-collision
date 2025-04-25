@@ -179,21 +179,24 @@ function animate() {
 
 let currentMouseX, currentMouseY
 let holdClickInterval
-let saveAcceleration = new Vector
+let saveAcceleration = {...acceleration}
 // Initial mouse down - start tracking
 container.addEventListener('mousedown', function(event) {
     // Set initial position
     currentMouseX = event.clientX
     currentMouseY = event.clientY
     
-    saveAcceleration.set(acceleration.x, acceleration.y)
+    console.log("2 save", saveAcceleration, "real", acceleration)
+    saveAcceleration.x = acceleration.x
+    saveAcceleration.y = acceleration.y
+    console.log("3 save", saveAcceleration, "real", acceleration)
     // Start the interval to log the current position
     holdClickInterval = setInterval(() => {
         particles.forEach((particle) => { // Accelerate particles towards mouse
-            if (particle.pos.x > currentMouseX - containerRect.left) particle.vel.x -= 2.5
-            if (particle.pos.x < currentMouseX - containerRect.left) particle.vel.x += 2.5
-            if (particle.pos.y > currentMouseY - containerRect.top) particle.vel.y -= 2.5
-            if (particle.pos.y < currentMouseY - containerRect.top) particle.vel.y += 2.5
+            if (particle.pos.x > currentMouseX - containerRect.left) particle.vel.x -= .5
+            if (particle.pos.x < currentMouseX - containerRect.left) particle.vel.x += .5
+            if (particle.pos.y > currentMouseY - containerRect.top) particle.vel.y -= .5
+            if (particle.pos.y < currentMouseY - containerRect.top) particle.vel.y += .5
         })
         acceleration.set(0, 0)
     }, 50)
