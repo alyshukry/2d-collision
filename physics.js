@@ -185,6 +185,9 @@ container.addEventListener('mousedown', function(event) {
     // Set initial position
     currentMouseX = event.clientX
     currentMouseY = event.clientY
+
+    container.style.cursor = "grabbing" // Override css
+    document.body.style.cursor = "grabbing"
     
     saveAcceleration.x = acceleration.x
     saveAcceleration.y = acceleration.y
@@ -209,4 +212,8 @@ document.addEventListener('mousemove', function(event) {
 document.addEventListener('mouseup', function() {
     clearInterval(holdClickInterval)
     acceleration.set(saveAcceleration.x, saveAcceleration.y)
+    
+    // Restore defaults
+    container.style.cursor = "grab"
+    document.body.style.cursor = "auto"
 })

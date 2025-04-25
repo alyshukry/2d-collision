@@ -13,6 +13,9 @@ body {
 
     background-color: black;
 
+}   #container:hover {
+    cursor: grab;
+
 }   #text {
     z-index: 1;
     position: absolute;
