@@ -186,10 +186,8 @@ container.addEventListener('mousedown', function(event) {
     currentMouseX = event.clientX
     currentMouseY = event.clientY
     
-    console.log("2 save", saveAcceleration, "real", acceleration)
     saveAcceleration.x = acceleration.x
     saveAcceleration.y = acceleration.y
-    console.log("3 save", saveAcceleration, "real", acceleration)
     // Start the interval to log the current position
     holdClickInterval = setInterval(() => {
         particles.forEach((particle) => { // Accelerate particles towards mouse
