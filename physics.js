@@ -6,6 +6,8 @@ let acceleration = new Vector(0, 0.35)
 
 const collisionDamping = 0.5
 const container = document.querySelector("#container")
+let containerWidth = container.offsetWidth
+let containerHeight = container.offsetHeight
 
 let click = document.querySelector("body")
 click.onclick = function(){
@@ -99,10 +101,7 @@ class Particle {
             else if (this.checkCollision(particle)) break // End entire for loop if collision was detected
         }
 
-        // Collisions with walls
-        let containerWidth = container.offsetWidth
-        let containerHeight = container.offsetHeight
-        
+        // Collisions with walls        
         if (this.pos.x < this.r) { // Detect collision between wall
             this.pos.x = this.r // Move the particle so it isn't touching the wall
             if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(collisionDamping).x // Reverse particle direction
@@ -176,3 +175,37 @@ function animate() {
     requestAnimationFrame(animate)
 
 }   animate() // Start the animation
+
+let currentMouseX, currentMouseY
+let holdClickInterval
+let saveAcceleration = new Vector
+// Initial mouse down - start tracking
+container.addEventListener('mousedown', function(event) {
+    // Set initial position
+    currentMouseX = event.clientX
+    currentMouseY = event.clientY
+    
+    saveAcceleration.set(acceleration.x, acceleration.y)
+    // Start the interval to log the current position
+    holdClickInterval = setInterval(() => {
+        console.log('Mouse X:', currentMouseX, 'Mouse Y:', currentMouseY)
+        particles.forEach((particle) => {
+            if (particle.pos.x > currentMouseX) particle.vel.x -= 2.5
+            if (particle.pos.x < currentMouseX) particle.vel.x += 2.5
+            if (particle.pos.y > currentMouseY) particle.vel.y -= 2.5
+            if (particle.pos.y < currentMouseY) particle.vel.y += 2.5
+        })
+        acceleration.set(0, 0)
+    }, 50)
+})
+// Update position as mouse moves
+container.addEventListener('mousemove', function(event) {
+    // Update the current position variables
+    currentMouseX = event.clientX
+    currentMouseY = event.clientY
+})
+// Stop tracking when mouse is released
+container.addEventListener('mouseup', function() {
+    clearInterval(holdClickInterval)
+    acceleration.set(saveAcceleration.x, saveAcceleration.y)
+})
