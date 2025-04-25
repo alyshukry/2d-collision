@@ -8,6 +8,7 @@ const collisionDamping = 0.5
 const container = document.querySelector("#container")
 let containerWidth = container.offsetWidth
 let containerHeight = container.offsetHeight
+let containerRect = container.getBoundingClientRect()
 
 let click = document.querySelector("body")
 click.onclick = function(){
@@ -189,22 +190,22 @@ container.addEventListener('mousedown', function(event) {
     // Start the interval to log the current position
     holdClickInterval = setInterval(() => {
         particles.forEach((particle) => { // Accelerate particles towards mouse
-            if (particle.pos.x > currentMouseX) particle.vel.x -= 2.5
-            if (particle.pos.x < currentMouseX) particle.vel.x += 2.5
-            if (particle.pos.y > currentMouseY) particle.vel.y -= 2.5
-            if (particle.pos.y < currentMouseY) particle.vel.y += 2.5
+            if (particle.pos.x > currentMouseX - containerRect.left) particle.vel.x -= 2.5
+            if (particle.pos.x < currentMouseX - containerRect.left) particle.vel.x += 2.5
+            if (particle.pos.y > currentMouseY - containerRect.top) particle.vel.y -= 2.5
+            if (particle.pos.y < currentMouseY - containerRect.top) particle.vel.y += 2.5
         })
         acceleration.set(0, 0)
     }, 50)
 })
 // Update position as mouse moves
-container.addEventListener('mousemove', function(event) {
+document.addEventListener('mousemove', function(event) {
     // Update the current position variables
     currentMouseX = event.clientX
     currentMouseY = event.clientY
 })
 // Stop tracking when mouse is released
-container.addEventListener('mouseup', function() {
+document.addEventListener('mouseup', function() {
     clearInterval(holdClickInterval)
     acceleration.set(saveAcceleration.x, saveAcceleration.y)
 })
