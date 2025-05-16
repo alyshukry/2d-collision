@@ -231,7 +231,7 @@ function startTracking(event) {
     saveAcceleration.y = Particle.acceleration.y
 
     // Start the interval to log the current position
-    holdClickInterval = setInterval(() => {
+    if (Particle.enableCursorForce) holdClickInterval = setInterval(() => {
         particles.forEach((particle) => {
             const containerRect = particle.container.getBoundingClientRect()
 
