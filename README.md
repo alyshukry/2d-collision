@@ -40,6 +40,7 @@ The library provides the following key functions:
     - `addMasses` *(number)* – Adds to the current masses of the particles.
     - `multiplyMasses` *(number)* – Multiplies the current masses of the particles.
 <br>
+
 Example:
 ```js
 // Create a single particle
