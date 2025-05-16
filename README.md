@@ -19,6 +19,7 @@ npm install 2d-collision
 ### Functions:
 The library provides the following key functions:
 - **`createParticle(radius, mass, element, container)`** – Creates a single particle and adds it to the simulation.
+
     - `radius`*`(number)`* – determines particle's size
     - `mass`*`(number)`* – determines particle's weight
     - `element`*`(string)`* – the HTML element that you'd like to turn into a particle
@@ -26,6 +27,7 @@ The library provides the following key functions:
 - **`createParticles(radii, masses, elements, container)`** – Creates multiple particles at once.
 - **`editParticles()`** – Modify properties of particles by selecting them via their class. Function provides the following arguments:
     - **`particlesClass`** *(string)* – The class of the HTML elements representing the particles.
+    
     - **`setVelX, setVelY`** *(number)* – Sets the velocity of the particles along the X and Y axes.
     - **`addVelX, addVelY`** *(number)* – Adds to the current velocity of the particles along the X and Y axes.
     - **`multiplyVelX, multiplyVelY`** *(number)* – Multiplies the current velocity of the particles along the X and Y axes.
