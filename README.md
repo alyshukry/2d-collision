@@ -27,7 +27,6 @@ The library provides the following key functions:
 - **`createParticles(radii, masses, elements, container)`** – Creates multiple particles at once.
 - **`editParticles()`** – Modify properties of particles by selecting them via their class. Function provides the following arguments:
     - `particlesClass` *(string)* – The class of the HTML elements representing the particles.
-        
     - `setVelX, setVelY` *(number)* – Sets the velocity of the particles along the X and Y axes.
     - `addVelX, addVelY` *(number)* – Adds to the current velocity of the particles along the X and Y axes.
     - `multiplyVelX, multiplyVelY` *(number)* – Multiplies the current velocity of the particles along the X and Y axes.
@@ -40,6 +39,7 @@ The library provides the following key functions:
     - `setMasses` *(number)* – Sets the masses of the particles.
     - `addMasses` *(number)* – Adds to the current masses of the particles.
     - `multiplyMasses` *(number)* – Multiplies the current masses of the particles.
+<br>
 Example:
 ```js
 // Create a single particle
