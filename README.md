@@ -1,82 +1,76 @@
+# ⚙️ Particle Physics Simulation
+![npm](https://img.shields.io/npm/v/particle-physics-sim) ![license](https://img.shields.io/badge/license-MIT-blue.svg) ![downloads](https://img.shields.io/npm/dw/particle-physics-sim)
 
-# 💥 Collision Physics
-![npm](https://img.shields.io/npm/v/spawn-confetti) ![license](https://img.shields.io/badge/license-MIT-blue.svg) ![downloads](https://img.shields.io/npm/dw/spawn-confetti)
-
-A lightweight and modular 2D physics engine built with vanilla JavaScript.
+A lightweight and customizable JavaScript library for simulating particle physics, including collisions, gravity, and interactive forces. Perfect for creating dynamic visual effects.
 
 ![Demo](demo.gif)
 ## 🚀 Installation:
 ### Option 1: via npm
 ```bash
-npm  install  spawn-confetti
+npm install 2d-collision
 ```
 ### Option 2: Vanilla JS
-1. Download `confetti.js` and add it to your project folder
+1. Download `physics.js` and add it to your project folder.
 2. Include it in your HTML as a module:
 ```html
-<script  src="path/to/confetti.js"  type="module"></script>
+<script src="path/to/physics.js" type="module"></script>
 ```
 ## 🎮 Usage and Configuration
-### Function Parameters:
-The `spawnConfetti()` function has the following parameters:
-- **`amount`***`(number)`* – Number of confetti particles to spawn.
-	*Default:* 30
-	
-- **`x, y`***`(number | string)`* – Spawn coordinates.<br>
-	*Default:* mouse coordinates<br>
-	*Accepted string values*:
-	- `mouse` – spawn at mouse coordinate
-	- `center` – spawn at center coordinate of page
-	- `max` – spawn at max coordinate of page
-- **`velXRange, velYRange`***`(array)`* – Initial velocity range.<br>
-	*Default:* [-5, 5], [-8, 0]
-- **`angVelXRange, angVelZRange`***`(array)`* – Constant rotational velocity range.<br>
-	*Default:* [0, 0], [6, 12]
-- **`lifetime`***`(number)`* – Lifetime of particles in milliseconds.<br>
-	*Default:* 2000
-
+### Functions:
+The library provides the following key functions:
+- **`createParticle(radius, mass, element, container)`** – Creates a single particle and adds it to the simulation.
+    - `radius`*`(number)`* – determines particle's size
+    - `mass`*`(number)`* – determines particle's weight
+    - `element`*`(string)`* – the HTML element that you'd like to turn into a particle
+    - `container`*`(string)`* – the HTML element that you'd like to act as the container for the particle
+- **`createParticles(radii, masses, elements, container)`** – Creates multiple particles at once.
+- **`editParticles()`** – Modify properties of particles by selecting them via their class. Function provides the following arguments:
+    - **`particlesClass`** *(string)* – The class of the HTML elements representing the particles.
+    - **`setVelX, setVelY`** *(number)* – Sets the velocity of the particles along the X and Y axes.
+    - **`addVelX, addVelY`** *(number)* – Adds to the current velocity of the particles along the X and Y axes.
+    - **`multiplyVelX, multiplyVelY`** *(number)* – Multiplies the current velocity of the particles along the X and Y axes.
+    - **`setPosX, setPosY`** *(number)* – Sets the position of the particles along the X and Y axes.
+    - **`addPosX, addPosY`** *(number)* – Adds to the current position of the particles along the X and Y axes.
+    - **`multiplyPosX, multiplyPosY`** *(number)* – Multiplies the current position of the particles along the X and Y axes.
+    - **`setRadii`** *(number)* – Sets the radii of the particles.
+    - **`addRadii`** *(number)* – Adds to the current radii of the particles.
+    - **`multiplyRadii`** *(number)* – Multiplies the current radii of the particles.
+    - **`setMasses`** *(number)* – Sets the masses of the particles.
+    - **`addMasses`** *(number)* – Adds to the current masses of the particles.
+    - **`multiplyMasses`** *(number)* – Multiplies the current masses of the particles.
 Example:
 ```js
-// Spawn 30 confetti particles at the current mouse position
-	spawnConfetti();
+// Create a single particle
+createParticle(10, 1, document.querySelector('#circle'), document.querySelector('#container'));
 
-// Custom configuration
-	spawnConfetti({
-		amount: 75,
-		x: 'center',
-		y: 'max',
-		velXRange: [-20, 20],
-		velYRange: [-10, -3],
-		angVelXRange: [1, 0],
-		angVelZRange: [5, 15],
-		lifetime: 500
-	});
+// Create multiple particles
+createParticles(12, 3, document.querySelectorAll('.circle'), document.querySelector('#container'));
+
+// Edit particles
+editParticles({
+    particlesClass: 'circle',
+    setVelX: 5,
+    addPosY: 10,
+    multiplyRadii: 1.5
+});
 ```
 ### Global Configuration:
-There are a few global configurations that you can modify:
-- **`acceleration`***`(vector)`* – Controls gravity direction.<br>
-	*Default:* (0, 0.25)
-	➜ *To edit values, assign like*: `acceleration.x = ...`, `acceleration.y = ...`
-- **`maxVel`***`(vector)`* – Sets maximum velocity.<br>
-	 *Default*: (1.5, 10)
-	➜ *To edit values, assign like*: `maxVel.x = ...`, `maxVel.y = ...`
-- **`drag`***`(vector)`* – Affects air resistance. Lower values = more drag.<br>
-	 *Default*: (0.98, 1), must be ≤ 1
-	➜ *To edit values, assign like*: `drag.x = ...`, `drag.y = ...`
-- **`colors`***`(array)`* – List of colors to randomly assign to particles.<br>
-	 *Default*: #f44a4a, #fb8f23, #fee440, #7aff60, #00f5d4, #00bbf9, #9b5de5, #f15bb5
-- **`shapes`***`(array of svg strings)`* – Shapes for particles to randomly select from.<br>
-	 *Default*:
-	 ```html
-	 <rect x="5" y="0" width="6" height="16"/>,
-	<path width="16" height="16" d="M0,12 Q4,4 8,12 Q12,20 16,12" stroke-width="5" fill="none"/>,
-	<circle cx="9" cy="9" r="5.5"/>,
-	<polygon points="9,2.072 17,15.928 1,15.928"/>
-	```
-	> ❗ **Note:** When adding new custom SVG shapes, ensure that any `<path>` elements include `fill="none"` to render correctly.
+The library includes several global settings to control particle behavior:
+- **`Particle.acceleration`** *(Vector)* – Controls gravity direction.<br>
+    *Default:* (0, 0.35)<br>
+    ➜ *To edit values, assign like*: `Particle.acceleration.x = ...`, `Particle.acceleration.y = ...`
+- **`Particle.collisionDamping`** *(number)* – Reduces velocity after collisions.<br>
+    *Default:* 0.5
+- **`Particle.enableCursorForce`** *(boolean)* – Enables or disables interactive forces from the cursor.<br>
+    *Default:* true
+- **`Particle.cursorForce`** *(number)* – Strength of the cursor's interactive force.<br>
+    *Default:* 0.5
+
+### Interactive Features:
+- **Mouse Interaction:** Hold and drag on the screen to apply forces to particles.
+- **Collision Detection:** Particles collide with each other and container walls, with realistic physics.
 
 <br>
 
-**License:** MIT
-<br>
+**License:** MIT  
 **Contributing:** Contributions welcome! Please feel free to submit a Pull Request.

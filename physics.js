@@ -1,14 +1,76 @@
-import {Vector} from "./vectors.js"
+class Vector {
+    constructor(x, y) {
+        this.x = x
+        this.y = y
+    }
+
+    add(v) {
+        return new Vector(this.x + v.x, this.y + v.y)
+
+    }   subtract(v) {
+        return new Vector(this.x - v.x, this.y - v.y)
+
+    }   multiply(scalar) {
+        return new Vector(this.x * scalar, this.y * scalar)
+
+    }   set(x, y) {
+        if (x instanceof Vector) {
+            this.x = x.x
+            this.y = x.y
+
+        }   else {
+            this.x = x
+            this.y = y
+        }
+        return this
+
+    }   addToBoth(x, y) {
+        if (x instanceof Vector) {
+            this.x += x.x
+            this.y += x.y
+
+        }   else {
+            this.x += x
+            this.y += y
+        }
+        return this
+
+    }   subtractFromBoth(x, y) {
+        if (x instanceof Vector) {
+            this.x -= x.x
+            this.y -= x.y
+
+        }   else {
+            this.x -= x
+            this.y -= y
+        }
+        return this
+
+    }   abs() {
+            return new Vector(Math.abs(this.x), Math.abs(this.y))
+
+    }   dot(v) {
+        return this.x * v.x + this.y * v.y
+
+    }   magnitude() {
+        return Math.sqrt(this.x ** 2 + this.y ** 2)
+
+    }   normalize() {
+        const len = this.magnitude()
+        return len === 0 ? new Vector(0, 0) : this.multiply(1 / len)
+    }
+}
 
 class Particle{
-    static acceleration = new Vector(0, 0.35)
     static collisionDamping = 0.5
     static enableCursorForce = true
     static cursorForce = .5
+    static acceleration = new Vector(0, .35)
 
     constructor(r, mass, element, container, id) {
         // Which container this particle belongs to
         this.container = container
+        this.container.acceleration = new Vector(Particle.acceleration.x, Particle.acceleration.y)
 
         // Particle attributes
         this.r = r
@@ -33,7 +95,7 @@ class Particle{
         if (this.vel.abs().magnitude() < 0.01) this.vel = this.vel.multiply(0) // Stop particle completely if velocity is low enough
 
         // Adds Particle.acceleration to the velocity
-        this.vel = this.vel.add(Particle.acceleration)
+        this.vel = this.vel.add(this.container.acceleration)
 
     }   checkCollision(other) { // Runs for each particle pair (unless a collision is detected, then it stops looking for other pairs)
         const delta = this.pos.subtract(other.pos)
@@ -216,9 +278,13 @@ function animate() {
 
 let currentMouseX, currentMouseY
 let holdClickInterval
-let saveAcceleration = {...Particle.acceleration}
+let saveAcceleration = {}
+let container
 // Initial mouse or touch down - start tracking
 function startTracking(event) {
+    // Check which container the user is touching/clicking on
+    container = event.target
+
     const isTouch = event.type === "touchstart"
     const clientX = isTouch ? event.touches[0].clientX : event.clientX
     const clientY = isTouch ? event.touches[0].clientY : event.clientY
@@ -227,24 +293,29 @@ function startTracking(event) {
     currentMouseX = clientX
     currentMouseY = clientY
 
-    saveAcceleration.x = Particle.acceleration.x
-    saveAcceleration.y = Particle.acceleration.y
+    saveAcceleration.x = container.acceleration.x
+    saveAcceleration.y = container.acceleration.y
 
     // Start the interval to log the current position
     if (Particle.enableCursorForce) holdClickInterval = setInterval(() => {
         particles.forEach((particle) => {
-            const containerRect = particle.container.getBoundingClientRect()
+            if (particle.container === container) {
+                const containerRect = container.getBoundingClientRect()
 
-            container.style.cursor = "grabbing" // Override CSS
-            document.body.style.cursor = "grabbing"
+                container.style.cursor = "grabbing" // Override CSS
+                document.body.style.cursor = "grabbing"
 
-            if (particle.pos.x > currentMouseX - containerRect.left) particle.vel.x -= Particle.cursorForce * (particle.pos.x - currentMouseX) / (particle.r ** 1.5)
-            if (particle.pos.x < currentMouseX - containerRect.left) particle.vel.x += Particle.cursorForce * (-particle.pos.x + currentMouseX) / (particle.r ** 1.5)
-            if (particle.pos.y > currentMouseY - containerRect.top) particle.vel.y -= Particle.cursorForce * (particle.pos.y - currentMouseY) / (particle.r ** 1.5)
-            if (particle.pos.y < currentMouseY - containerRect.top) particle.vel.y += Particle.cursorForce * (-particle.pos.y + currentMouseY) / (particle.r ** 1.5)
+                const mouseX = currentMouseX - containerRect.left
+                const mouseY = currentMouseY - containerRect.top
+
+                if (particle.pos.x > mouseX) particle.vel.x -= Particle.cursorForce * (particle.pos.x - mouseX) / (particle.r ** 1.5)
+                if (particle.pos.x < mouseX) particle.vel.x += Particle.cursorForce * (mouseX - particle.pos.x) / (particle.r ** 1.5)
+                if (particle.pos.y > mouseY) particle.vel.y -= Particle.cursorForce * (particle.pos.y - mouseY) / (particle.r ** 1.5)
+                if (particle.pos.y < mouseY) particle.vel.y += Particle.cursorForce * (mouseY - particle.pos.y) / (particle.r ** 1.5)
+            }
         })
-        Particle.acceleration.set(0, 0)
-    }, 100)
+        container.acceleration.set(0, 0)
+    }, 50)
 }
 
 // Update position as mouse or touch moves
@@ -261,7 +332,7 @@ function updatePosition(event) {
 // Stop tracking when mouse or touch is released
 function stopTracking() {
     clearInterval(holdClickInterval)
-    Particle.acceleration.set(saveAcceleration.x, saveAcceleration.y)
+    container.acceleration.set(saveAcceleration.x, saveAcceleration.y)
 
     // Restore defaults
     container.style.cursor = "grab"
@@ -269,8 +340,8 @@ function stopTracking() {
 }
 
 // Add event listeners for both mouse and touch events
-container.addEventListener("mousedown", startTracking)
-container.addEventListener("touchstart", startTracking)
+document.addEventListener("mousedown", startTracking)
+document.addEventListener("touchstart", startTracking)
 
 document.addEventListener("mousemove", updatePosition)
 document.addEventListener("touchmove", updatePosition)
