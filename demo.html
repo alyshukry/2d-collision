@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Ccircle cx='32' cy='32' r='30' fill='white' /%3E%3C/svg%3E" type="image/svg+xml">
+    <title>Collision Physics!</title>
+</head>
+<body>
+    <div id="text">Try holding left click,<br>or tap to enable gyro data (mobile only)</div>
+    <div id="container"></div>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+
+            user-select: none; /* For modern browsers */
+            -webkit-user-select: none; /* For Safari */
+            -moz-user-select: none; /* For Firefox */
+            -ms-user-select: none; /* For Internet Explorer */
+            cursor: default; 
+        }
+
+        #container {
+            position: absolute;
+
+            width: 100vw;
+            height: 100vh;
+
+            background-color: white;
+
+        }   #container:hover {
+            cursor: grab;
+
+        }  #text {
+            z-index: 1;
+            position: absolute;
+
+            color:  black;
+            font-size: 1.25rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 500;
+
+            margin: 5rem;
+        }
+
+        .circle {
+            z-index: 1;
+            transition: transform .05s;
+        }
+    </style>
+
+    <script>
+        const colors = ["#f44a4a", "#fb8f23", "#fee440", "#7aff60", "#00f5d4", "#00bbf9", "#9b5de5", "#f15bb5"];
+
+        for (let i = 0; i < 48; i++) {
+            const randomSize = Math.random() * 12 + 12
+
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("class", "circle");
+            svg.setAttribute("width", `${randomSize * 2}`);
+            svg.setAttribute("height", `${randomSize * 2}`);
+            svg.setAttribute("viewBox", `0 0 ${randomSize * 2} ${randomSize * 2}`);
+            svg.style.transform = "translate(0, 0)";
+
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", `${randomSize}`);
+            circle.setAttribute("cy", `${randomSize}`);
+            circle.setAttribute("r", `${randomSize}`);
+            circle.setAttribute("fill", colors[Math.floor(Math.random() * colors.length)]);
+
+            svg.appendChild(circle);
+            document.body.appendChild(svg);
+        }
+    </script>
+    
+    <script type="module" src="physics.js"></script>
+    <script type="module">document.querySelectorAll(".circle").forEach((circle) => {createParticle(circle.clientHeight / 2, circle.clientHeight / 2, circle, document.querySelector("#container"))})</script>
+</body>
+</html>

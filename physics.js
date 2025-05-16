@@ -1,24 +1,15 @@
-
-import {gyroscope} from "./gyroscope.js"
 import {Vector} from "./vectors.js"
 
-let acceleration = new Vector(0, 0.35) 
+class Particle{
+    static acceleration = new Vector(0, 0.35)
+    static collisionDamping = 0.5
+    static enableCursorForce = true
+    static cursorForce = .5
 
-const collisionDamping = 0.5
-const container = document.querySelector("#container")
-let containerWidth = container.offsetWidth
-let containerHeight = container.offsetHeight
-let containerRect = container.getBoundingClientRect()
+    constructor(r, mass, element, container, id) {
+        // Which container this particle belongs to
+        this.container = container
 
-let click = document.querySelector("body")
-click.onclick = function(){
-    gyroscope.requestDeviceOrientation()
-    gyroscope.requestDeviceMotion()
-    console.log("Requesting permissions...")
-}
-
-class Particle {
-    constructor(r, mass, element, id) {
         // Particle attributes
         this.r = r
         this.mass = mass
@@ -29,7 +20,6 @@ class Particle {
 
         const {x, y} = this.getCoordinates(element)
         this.pos = new Vector(x, y)
-
 
     }   getCoordinates(element) { // Gets the particle's coordinates from the element's transform
         let coordinates = getComputedStyle(element).transform.match(/matrix\(([^)]+)\)/)[1].split(', ')
@@ -42,14 +32,8 @@ class Particle {
     }   updateVelocities() {
         if (this.vel.abs().magnitude() < 0.01) this.vel = this.vel.multiply(0) // Stop particle completely if velocity is low enough
 
-        // Adds acceleration to the velocity
-        if (gyroscope.frontToBack) { // Check if gyro is enabled
-            this.vel.x += gyroscope.leftToRight / 180 + gyroscope.movementLeftToRight / 2.5
-            this.vel.y += gyroscope.frontToBack / 180 + gyroscope.movementUpToDown / 2.5
-
-        } else {
-            this.vel = this.vel.add(acceleration)
-        }   
+        // Adds Particle.acceleration to the velocity
+        this.vel = this.vel.add(Particle.acceleration)
 
     }   checkCollision(other) { // Runs for each particle pair (unless a collision is detected, then it stops looking for other pairs)
         const delta = this.pos.subtract(other.pos)
@@ -98,26 +82,30 @@ class Particle {
         for (let i = 0; i < particles.length; i++) {
             const particle = particles[i]
 
+            if (particle.container != this.container) continue // End this loop if particle is checking particle in another container
             if (particle.id === this.id) continue // End this loop if particle is checking itself
             else if (this.checkCollision(particle)) break // End entire for loop if collision was detected
         }
 
-        // Collisions with walls        
+        // Collisions with walls
+        let containerWidth = this.container.offsetWidth
+        let containerHeight = this.container.offsetHeight
+        
         if (this.pos.x < this.r) { // Detect collision between wall
             this.pos.x = this.r // Move the particle so it isn't touching the wall
-            if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(collisionDamping).x // Reverse particle direction
+            if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(Particle.collisionDamping).x // Reverse particle direction
 
         }   if (this.pos.x > containerWidth - this.r) {
             this.pos.x = containerWidth - this.r
-            if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(collisionDamping).x
+            if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(Particle.collisionDamping).x
 
         }   if (this.pos.y < this.r) {
             this.pos.y = this.r
-            if (this.vel.abs().magnitude() > 0.01) this.vel.y = this.vel.multiply(-1).multiply(collisionDamping).y
+            if (this.vel.abs().magnitude() > 0.01) this.vel.y = this.vel.multiply(-1).multiply(Particle.collisionDamping).y
 
         }   if (this.pos.y > containerHeight - this.r) {
             this.pos.y = containerHeight - this.r
-            if (this.vel.abs().magnitude() > 0.01) this.vel.y = this.vel.multiply(-1).multiply(collisionDamping).y
+            if (this.vel.abs().magnitude() > 0.01) this.vel.y = this.vel.multiply(-1).multiply(Particle.collisionDamping).y
         }
 
         this.updateVelocities()
@@ -125,41 +113,96 @@ class Particle {
 
         this.element.style.transform = `translate(${this.pos.x - this.r}px, ${this.pos.y - this.r}px)` // Radius offset to display particles correctly
     }
-}
+}   export {Particle}; window.Particle = Particle
 
 // Creating and defining the particles
-for (let amount = 0; amount < 20; amount++) {
-    const svgNS = "http://www.w3.org/2000/svg"
-
-    const svg = document.createElementNS(svgNS, "svg")
-    svg.setAttribute("class", "particle")
-    svg.setAttribute("width", "48px")
-    svg.setAttribute("height", "48px")
-    svg.setAttribute("xmlns", svgNS)
-
-    const circle = document.createElementNS(svgNS, "circle")
-    circle.setAttribute("cx", "24")
-    circle.setAttribute("cy", "24")
-    circle.setAttribute("r", "24")
-    circle.setAttribute("fill", "currentColor")
-
-    svg.appendChild(circle)
-    container.appendChild(svg)
-}   const particleElements = document.querySelectorAll(".particle")
-
-// Separating the particles
-let initialPos = 0
-document.querySelectorAll(".particle").forEach((particleElement) => {
-    initialPos += particleElement.clientHeight + 5
-    particleElement.style.transform = `translate(${initialPos}px, 50px)`
-})
-
-// Creating the particles
-let particleId = -1
-const particles = Array.from(particleElements).map((element) => {
+let particleId = 0
+let particles = []
+// Creating a singular particle
+function createParticle(radius, mass, element, container) {
     particleId += 1
-    return new Particle(element.clientHeight / 2, 1, element, particleId) // Create a new Particle for each .particle element
-})
+
+    container.appendChild(element)
+    element.classList.add("particle")
+
+    element.style.position = "absolute"
+    if (getComputedStyle(element).transform === "none") element.style.transform = "translate(0, 0)"
+
+    const particle = new Particle(radius, mass, element, container, particleId)
+    particles.push(particle)
+
+}   export {createParticle}; window.createParticle = createParticle
+
+// Creating multiple particles
+function createParticles(radii, masses, elements, container) {
+    elements.forEach((element) => {
+        particleId += 1
+
+        container.appendChild(element)
+        element.classList.add("particle")
+
+        element.style.position = "absolute"
+        if (getComputedStyle(element).transform === "none") element.style.transform = "translate(0, 0)"
+
+        const particle = new Particle(radii, masses, element, container, particleId)
+        particles.push(particle)
+    })
+
+}   export {createParticles}; window.createParticles = createParticles
+
+// Modify a group of particles by selecting them by their element's class
+function editParticles({
+    particlesClass,
+
+    setVelX, setVelY,
+    addVelX, addVelY,
+    multiplyVelX, multiplyVelY,
+
+    setPosX, setPosY,
+    addPosX, addPosY,
+    multiplyPosX, multiplyPosY,
+
+    setRadii, setMasses,
+    addRadii, addMasses,
+    multiplyRadii, multiplyMasses
+} = {}) {
+    // If user defined the class, select all elements with the class
+    if (particlesClass) document.querySelectorAll(`.${particlesClass}`).forEach((element) => {
+        // Check if the particle's element has the user defined class
+        const particle = particles.find((p) => p.element === element)
+        if (particle) {
+            // Edit the values
+            if (setVelX !== undefined) particle.vel.x = setVelX
+            if (setVelY !== undefined) particle.vel.y = setVelY
+            
+            if (addVelX !== undefined) particle.vel.x += addVelX
+            if (addVelY !== undefined) particle.vel.y += addVelY
+            
+            if (multiplyVelX !== undefined) particle.vel.x *= multiplyVelX
+            if (multiplyVelY !== undefined) particle.vel.y *= multiplyVelY
+            
+            if (setPosX !== undefined) particle.pos.x = setPosX
+            if (setPosY !== undefined) particle.pos.y = setPosY
+            
+            if (addPosX !== undefined) particle.pos.x += addPosX
+            if (addPosY !== undefined) particle.pos.y += addPosY
+        
+            if (multiplyPosX !== undefined) particle.pos.x *= multiplyPosX
+            if (multiplyPosY !== undefined) particle.pos.y *= multiplyPosY
+            
+            if (setRadii !== undefined) particle.r = setRadii
+            if (setMasses !== undefined) particle.mass = setMasses
+            
+            if (addRadii !== undefined) particle.r += addRadii
+            if (addMasses !== undefined) particle.mass += addMasses
+            
+            if (multiplyRadii !== undefined) particle.r *= multiplyRadii
+            if (multiplyMasses !== undefined) particle.mass *= multiplyMasses
+        }
+    })
+    else console.error("No class defined. Please provide a valid 'particlesClass' to select the particles you want to edit.")
+
+}   export {editParticles}; window.editParticles = editParticles
 
 // Animate one frame
 function animate() {
@@ -167,53 +210,70 @@ function animate() {
         particle.update()
     }) // Update each particle position
 
-    if (gyroscope.frontToBack) document.querySelector("#text").innerHTML = `
-        Beta: ${gyroscope.frontToBack?.toFixed(2) ?? "N/A"},<br>
-        Gamma: ${gyroscope.leftToRight?.toFixed(2) ?? "N/A"},<br>
-        X: ${gyroscope.movementLeftToRight?.toFixed(2) ?? "N/A"},<br>
-        Y: ${gyroscope.movementUpToDown?.toFixed(2) ?? "N/A"}<br>
-    `
     requestAnimationFrame(animate)
 
 }   animate() // Start the animation
 
 let currentMouseX, currentMouseY
 let holdClickInterval
-let saveAcceleration = {...acceleration}
-// Initial mouse down - start tracking
-container.addEventListener('mousedown', function(event) {
-    // Set initial position
-    currentMouseX = event.clientX
-    currentMouseY = event.clientY
+let saveAcceleration = {...Particle.acceleration}
+// Initial mouse or touch down - start tracking
+function startTracking(event) {
+    const isTouch = event.type === "touchstart"
+    const clientX = isTouch ? event.touches[0].clientX : event.clientX
+    const clientY = isTouch ? event.touches[0].clientY : event.clientY
 
-    container.style.cursor = "grabbing" // Override css
-    document.body.style.cursor = "grabbing"
-    
-    saveAcceleration.x = acceleration.x
-    saveAcceleration.y = acceleration.y
+    // Set initial position
+    currentMouseX = clientX
+    currentMouseY = clientY
+
+    saveAcceleration.x = Particle.acceleration.x
+    saveAcceleration.y = Particle.acceleration.y
+
     // Start the interval to log the current position
     holdClickInterval = setInterval(() => {
-        particles.forEach((particle) => { // Accelerate particles towards mouse
-            if (particle.pos.x > currentMouseX - containerRect.left) particle.vel.x -= .5
-            if (particle.pos.x < currentMouseX - containerRect.left) particle.vel.x += .5
-            if (particle.pos.y > currentMouseY - containerRect.top) particle.vel.y -= .5
-            if (particle.pos.y < currentMouseY - containerRect.top) particle.vel.y += .5
+        particles.forEach((particle) => {
+            const containerRect = particle.container.getBoundingClientRect()
+
+            container.style.cursor = "grabbing" // Override CSS
+            document.body.style.cursor = "grabbing"
+
+            if (particle.pos.x > currentMouseX - containerRect.left) particle.vel.x -= Particle.cursorForce * (particle.pos.x - currentMouseX) / (particle.r ** 1.5)
+            if (particle.pos.x < currentMouseX - containerRect.left) particle.vel.x += Particle.cursorForce * (-particle.pos.x + currentMouseX) / (particle.r ** 1.5)
+            if (particle.pos.y > currentMouseY - containerRect.top) particle.vel.y -= Particle.cursorForce * (particle.pos.y - currentMouseY) / (particle.r ** 1.5)
+            if (particle.pos.y < currentMouseY - containerRect.top) particle.vel.y += Particle.cursorForce * (-particle.pos.y + currentMouseY) / (particle.r ** 1.5)
         })
-        acceleration.set(0, 0)
-    }, 50)
-})
-// Update position as mouse moves
-document.addEventListener('mousemove', function(event) {
+        Particle.acceleration.set(0, 0)
+    }, 100)
+}
+
+// Update position as mouse or touch moves
+function updatePosition(event) {
+    const isTouch = event.type === "touchmove"
+    const clientX = isTouch ? event.touches[0].clientX : event.clientX
+    const clientY = isTouch ? event.touches[0].clientY : event.clientY
+
     // Update the current position variables
-    currentMouseX = event.clientX
-    currentMouseY = event.clientY
-})
-// Stop tracking when mouse is released
-document.addEventListener('mouseup', function() {
+    currentMouseX = clientX
+    currentMouseY = clientY
+}
+
+// Stop tracking when mouse or touch is released
+function stopTracking() {
     clearInterval(holdClickInterval)
-    acceleration.set(saveAcceleration.x, saveAcceleration.y)
-    
+    Particle.acceleration.set(saveAcceleration.x, saveAcceleration.y)
+
     // Restore defaults
     container.style.cursor = "grab"
     document.body.style.cursor = "auto"
-})
+}
+
+// Add event listeners for both mouse and touch events
+container.addEventListener("mousedown", startTracking)
+container.addEventListener("touchstart", startTracking)
+
+document.addEventListener("mousemove", updatePosition)
+document.addEventListener("touchmove", updatePosition)
+
+document.addEventListener("mouseup", stopTracking)
+document.addEventListener("touchend", stopTracking)
