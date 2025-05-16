@@ -52,26 +52,27 @@
     </style>
 
     <script>
-        const colors = ["#f44a4a", "#fb8f23", "#fee440", "#7aff60", "#00f5d4", "#00bbf9", "#9b5de5", "#f15bb5"];
+        const colors = ["#f44a4a", "#fb8f23", "#fee440", "#7aff60", "#00f5d4", "#00bbf9", "#9b5de5", "#f15bb5"]
+        document.querySelector("link[rel='icon']").href = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Ccircle cx='32' cy='32' r='30' fill='${colors[Math.floor(Math.random() * colors.length)].replace('#', '%23')}' /%3E%3C/svg%3E`
 
         for (let i = 0; i < window.innerWidth / 30; i++) {
             const randomSize = Math.random() * 12 + 12
 
-            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.setAttribute("class", "circle");
-            svg.setAttribute("width", `${randomSize * 2}`);
-            svg.setAttribute("height", `${randomSize * 2}`);
-            svg.setAttribute("viewBox", `0 0 ${randomSize * 2} ${randomSize * 2}`);
-            svg.style.transform = "translate(0, 0)";
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+            svg.setAttribute("class", "circle")
+            svg.setAttribute("width", `${randomSize * 2}`)
+            svg.setAttribute("height", `${randomSize * 2}`)
+            svg.setAttribute("viewBox", `0 0 ${randomSize * 2} ${randomSize * 2}`)
+            svg.style.transform = "translate(0, 0)"
 
-            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            circle.setAttribute("cx", `${randomSize}`);
-            circle.setAttribute("cy", `${randomSize}`);
-            circle.setAttribute("r", `${randomSize}`);
-            circle.setAttribute("fill", colors[Math.floor(Math.random() * colors.length)]);
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+            circle.setAttribute("cx", `${randomSize}`)
+            circle.setAttribute("cy", `${randomSize}`)
+            circle.setAttribute("r", `${randomSize}`)
+            circle.setAttribute("fill", colors[Math.floor(Math.random() * colors.length)])
 
-            svg.appendChild(circle);
-            document.body.appendChild(svg);
+            svg.appendChild(circle)
+            document.body.appendChild(svg)
         }
     </script>
     

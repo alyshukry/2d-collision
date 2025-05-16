@@ -1,0 +1,42 @@
+{
+  "name": "2d-collision",
+  "version": "1.0.0",
+  "description": "💥 A lightweight and customisable JavaScript library for simulating particle physics, including collisions, gravity, and mouse interactivity. Perfect for creating dynamic visual effects.",
+  "main": "physics.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alyshukry/2d-collision.git"
+  },
+  "keywords": [
+    "collision",
+    "physics",
+    "engine",
+    "collide",
+    "collisions",
+    "particles",
+    "particle",
+    "2d",
+    "simulation",
+    "gravity",
+    "interactive",
+    "visual-effects",
+    "vector",
+    "dynamics",
+    "animation",
+    "javascript",
+    "customizable",
+    "lightweight",
+    "mouse-interactivity",
+    "physics-simulation",
+    "physics-engine"
+  ],
+  "author": "Aly Shukry <alyshukry.dev@gmail.com> (https://alyshukry.works)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alyshukry/2d-collision/issues"
+  },
+  "homepage": "https://github.com/alyshukry/2d-collision#readme"
+}
