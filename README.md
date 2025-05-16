@@ -1,7 +1,7 @@
-# ⚙️ Particle Physics Simulation
+# 💥 Particle Physics Simulation
 ![npm](https://img.shields.io/npm/v/particle-physics-sim) ![license](https://img.shields.io/badge/license-MIT-blue.svg) ![downloads](https://img.shields.io/npm/dw/particle-physics-sim)
 
-A lightweight and customizable JavaScript library for simulating particle physics, including collisions, gravity, and interactive forces. Perfect for creating dynamic visual effects.
+A lightweight and customisable JavaScript library for simulating particle physics, including collisions, gravity, and mouse interactivity. Perfect for creating dynamic visual effects.
 
 ![Demo](demo.gif)
 ## 🚀 Installation:
@@ -68,10 +68,6 @@ The library includes several global settings to control particle behavior:
     *Default:* true
 - **`Particle.cursorForce`** *(number)* – Strength of the cursor's interactive force.<br>
     *Default:* 0.5
-
-### Interactive Features:
-- **Mouse Interaction:** Hold and drag on the screen to apply forces to particles.
-- **Collision Detection:** Particles collide with each other and container walls, with realistic physics.
 
 <br>
 
