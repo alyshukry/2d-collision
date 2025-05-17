@@ -78,7 +78,6 @@ class Particle{
         this.mass = mass
         this.element = element
         this.id = id
-        this.element.id = `particle-${id}`
         this.vel =  new Vector(Math.random() * 15, Math.random() * 15) // Random initial velocity
 
         const {x, y} = this.getCoordinates(element)
