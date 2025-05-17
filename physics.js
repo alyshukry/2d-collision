@@ -66,6 +66,7 @@ class Particle{
     static enableCursorForce = true
     static cursorForce = .5
     static acceleration = new Vector(0, .35)
+    static containerPadding = 0
 
     constructor(r, mass, element, container, id) {
         // Which container this particle belongs to
@@ -150,19 +151,19 @@ class Particle{
         }
 
         // Collisions with walls
-        let containerWidth = this.container.offsetWidth
-        let containerHeight = this.container.offsetHeight
+        let containerWidth = this.container.offsetWidth - Particle.containerPadding
+        let containerHeight = this.container.offsetHeight - Particle.containerPadding
         
-        if (this.pos.x < this.r) { // Detect collision between wall
-            this.pos.x = this.r // Move the particle so it isn't touching the wall
+        if (this.pos.x < this.r + Particle.containerPadding) { // Detect collision between wall
+            this.pos.x = this.r + Particle.containerPadding // Move the particle so it isn't touching the wall
             if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(Particle.collisionDamping).x // Reverse particle direction
 
         }   if (this.pos.x > containerWidth - this.r) {
             this.pos.x = containerWidth - this.r
             if (this.vel.abs().magnitude() > 0.01) this.vel.x = this.vel.multiply(-1).multiply(Particle.collisionDamping).x
 
-        }   if (this.pos.y < this.r) {
-            this.pos.y = this.r
+        }   if (this.pos.y < this.r + Particle.containerPadding) {
+            this.pos.y = this.r + Particle.containerPadding
             if (this.vel.abs().magnitude() > 0.01) this.vel.y = this.vel.multiply(-1).multiply(Particle.collisionDamping).y
 
         }   if (this.pos.y > containerHeight - this.r) {
@@ -284,7 +285,8 @@ let container
 // Initial mouse or touch down - start tracking
 function startTracking(event) {
     // Check which container the user is touching/clicking on
-    container = event.target
+    if (event.target.acceleration) container = event.target
+    else return // End function if container doesn't have acceleration property to avoid annoying console errors
 
     const isTouch = event.type === "touchstart"
     const clientX = isTouch ? event.touches[0].clientX : event.clientX
@@ -333,7 +335,10 @@ function updatePosition(event) {
 // Stop tracking when mouse or touch is released
 function stopTracking() {
     clearInterval(holdClickInterval)
-    container.acceleration.set(saveAcceleration.x, saveAcceleration.y)
+
+    // Check if container has acceleration property to avoid annoying console error
+    if (container && container.acceleration) container.acceleration.set(saveAcceleration.x, saveAcceleration.y)
+    else return
 
     // Restore defaults
     container.style.cursor = "grab"

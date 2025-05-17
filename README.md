@@ -68,6 +68,8 @@ The library includes several global settings to control particle behavior:
     *Default:* true
 - **`Particle.cursorForce`** *(number)* – Strength of the cursor's interactive force.<br>
     *Default:* 0.5
+- **`Particle.containerPadding`** *(number)* – Sets padding around the container to prevent particles from touching edges.<br>
+    *Default:* 0
 
 <br>
 
