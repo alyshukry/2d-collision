@@ -1,5 +1,5 @@
 # 💥 Particle Physics Simulation
-![npm](https://img.shields.io/npm/v/2d-collision) ![license](https://img.shields.io/badge/license-MIT-blue.svg) ![downloads](https://img.shields.io/npm/dw/2d-collision)
+![npm](https://img.shields.io/npm/v/2d-collision) ![license](https://img.shields.io/badge/license-MIT-blue.svg) ![downloads](https://img.shields.io/npm/dt/2d-collision)
 
 A lightweight and customisable JavaScript library for simulating particle physics, including collisions, gravity, and mouse interactivity. Perfect for creating dynamic visual effects.
 

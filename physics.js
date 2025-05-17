@@ -211,6 +211,7 @@ function createParticles(radii, masses, elements, container) {
     })
 
 }   export {createParticles}; window.createParticles = createParticles
+    export {particles}; window.particles = particles
 
 // Modify a group of particles by selecting them by their element's class
 function editParticles({
