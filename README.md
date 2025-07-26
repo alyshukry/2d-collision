@@ -9,12 +9,6 @@ A lightweight and customisable JavaScript library for simulating particle physic
 ```bash
 npm install 2d-collision
 ```
-### Option 2: Vanilla JS
-1. Download `physics.js` and add it to your project folder.
-2. Include it in your HTML as a module:
-```html
-<script src="path/to/physics.js" type="module"></script>
-```
 ## 🎮 Usage and Configuration
 ### Functions:
 The library provides the following key functions:
