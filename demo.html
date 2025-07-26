@@ -77,6 +77,20 @@
     </script>
     
     <script type="module" src="physics.js"></script>
-    <script type="module">document.querySelectorAll(".circle").forEach((circle) => {createParticle(circle.clientHeight / 2, circle.clientHeight / 2, circle, document.querySelector("#container"))})</script>
+    <script type="module">
+        const container = {
+            element: document.querySelector("#container"),
+            acceleration: new Vector(0, 0)
+        }
+
+        document.querySelectorAll(".circle").forEach((circle) => {
+            createParticle(
+                circle.clientHeight / 2,
+                circle.clientHeight / 2,
+                circle,
+                container
+            )
+        })
+    </script>
 </body>
 </html>
