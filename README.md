@@ -17,7 +17,7 @@ The library provides the following key functions:
     - `radius`*`(number)`* – determines particle's size
     - `mass`*`(number)`* – determines particle's weight
     - `element`*`(string)`* – the HTML element that you'd like to turn into a particle
-    - `container`*`(string)`* – the HTML element that you'd like to act as the container for the particle
+    - `container`*`(obj)`* – the HTML element that you'd like to act as the container for the particle
 - **`createParticles(radii, masses, elements, container)`** – Creates multiple particles at once.
 - **`editParticles()`** – Modify properties of particles by selecting them via their class. Function provides the following arguments:
     - `particlesClass` *(string)* – The class of the HTML elements representing the particles.
@@ -38,10 +38,23 @@ The library provides the following key functions:
 Example:
 ```js
 // Create a single particle
-createParticle(10, 1, document.querySelector('#circle'), document.querySelector('#container'));
+createParticle(
+    10, 
+    1, 
+    document.querySelector('#circle'), 
+    {
+        element: document.querySelector("#container"),
+        acceleration: new Vector(0, 0)
+    });
 
 // Create multiple particles
-createParticles(12, 3, document.querySelectorAll('.circle'), document.querySelector('#container'));
+createParticle(
+    12, 
+    3, 
+    document.querySelectorAll('.circle'), 
+    {
+        element: document.querySelector("#container"),
+    });
 
 // Edit particles
 editParticles({
